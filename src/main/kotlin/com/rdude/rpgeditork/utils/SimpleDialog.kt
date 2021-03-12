@@ -100,8 +100,12 @@ class SimpleDialog<T>(
         box.add(button)
     }
 
-    fun showAndWait(): T {
-        openModal(StageStyle.UNDECORATED, escapeClosesWindow = false, block = true)
+    fun showAndWait(): T = show(true)
+
+    fun show(): T = show(false)
+
+    private fun show(block: Boolean): T {
+        openModal(StageStyle.UNDECORATED, escapeClosesWindow = false, block = block)
         val ret = t
         t = defaultReturn
         return ret

@@ -1,6 +1,11 @@
 package com.rdude.rpgeditork.view
 
+import com.rdude.rpgeditork.AnotherTest
+import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.createNewView
+import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.utils.clearTempFolders
+import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.view.entity.EntityView
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.application.Platform
@@ -9,18 +14,23 @@ import javafx.collections.MapChangeListener
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.image.ImageView
 import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import ru.rdude.fxlib.containers.selector.SelectorContainer
+import ru.rdude.rpg.game.logic.data.EntityData
+import ru.rdude.rpg.game.logic.data.SkillData
 import tornadofx.*
+import java.nio.file.Files
 
 class MainView : View() {
 
-    private val screenWidth = Screen.getPrimary().visualBounds.width
-    private val screenHeight = Screen.getPrimary().visualBounds.height
+    val screenWidth = Screen.getPrimary().visualBounds.width
+    val screenHeight = Screen.getPrimary().visualBounds.height
 
     private var tabPane: TabPane by singleAssign()
     private var newTab: Tab by singleAssign()
@@ -53,19 +63,25 @@ class MainView : View() {
                 }
                 button {
                     text = "_"
+                    action {
+                        currentStage?.isIconified = true
+                    }
                 }
                 button {
                     text = "X"
                     action {
+                        val tabsToRemove = mutableListOf<EntityView<*>>()
                         for (entry in entityViewTabs) {
                             if (!entry.key.wrapper.wasChanged || entry.key.saveOnCloseDialog.showAndWait()) {
                                 entry.value.close()
-                                entityViewTabs.remove(entry.key)
+                                tabsToRemove.add(entry.key)
                             } else {
                                 break
                             }
                         }
+                        tabsToRemove.forEach { entityViewTabs.remove(it) }
                         if (entityViewTabs.isEmpty()) {
+                            clearTempFolders()
                             (scene.window as Stage).close()
                         }
                     }
@@ -91,7 +107,7 @@ class MainView : View() {
             tab.setOnClosed { entityViewTabs.remove(view) }
             // on close ask to save
             tab.setOnCloseRequest {
-                if (!view.saveOnCloseDialog.showAndWait()) {
+                if (wrapper.wasChanged && !view.saveOnCloseDialog.showAndWait()) {
                     it.consume()
                 }
             }

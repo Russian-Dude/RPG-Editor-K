@@ -4,9 +4,11 @@ import com.rdude.rpgeditork.enums.entityDataTypeOf
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import ru.rdude.rpg.game.logic.data.EntityData
 import tornadofx.Controller
+import java.nio.file.CopyOption
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipInputStream
+import kotlin.io.path.exists
 
 class EntityUnPacker : Controller() {
 
@@ -21,11 +23,15 @@ class EntityUnPacker : Controller() {
         while (zipEntry != null) {
             // check only files
             if (!zipEntry.isDirectory) {
-                Files.copy(zipInputStream, Path.of(to.toString(), zipEntry.name))
+                val path = Path.of(to.toString(), zipEntry.name)
+                if (Files.notExists(path.parent)) {
+                    Files.createDirectories(path.parent)
+                }
+                Files.copy(zipInputStream, path)
             }
             // deserialize entityData
             entityDataTypeOf(zipEntry.name)?.let {
-                result = jsonSerializer.deSerializeEntityData(zipInputStream.readAllBytes().toString(), it.clazz)
+                result = jsonSerializer.deSerializeEntityData(String(Files.readAllBytes(Path.of(to.toString(), zipEntry.name))), it.clazz)
             }
             zipEntry = zipInputStream.nextEntry
         }

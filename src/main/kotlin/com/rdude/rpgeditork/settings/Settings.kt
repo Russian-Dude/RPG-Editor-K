@@ -10,19 +10,19 @@ object Settings {
 
     private val properties = Properties().apply { load(FileReader("properties.properties")) }
 
-    var autoSaveModulesWhenEntitySaved = properties.getOrDefault("autosave_modules_on_save", true) as Boolean
+    var autoSaveModulesWhenEntitySaved = properties.getOrDefault("autosave_modules_on_save", true).toString().toBoolean()
         set(value) {
             storeProperty("autosave_modules_on_save", value.toString())
             field = value
         }
 
-    var askAutoLoadModules = properties.getOrDefault("ask_auto_load_modules", true) as Boolean
+    var askAutoLoadModules = properties.getOrDefault("ask_auto_load_modules", true).toString().toBoolean()
         set(value) {
             storeProperty("ask_auto_load_modules", value.toString())
             field = value
         }
 
-    var autoLoadModules = properties.getOrDefault("auto_load_modules", true) as Boolean
+    var autoLoadModules = properties.getOrDefault("auto_load_modules", true).toString().toBoolean()
         set(value) {
             storeProperty("auto_load_modules", value.toString())
             field = value

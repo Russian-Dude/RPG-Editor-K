@@ -45,8 +45,8 @@ class EntityPacker : Controller() {
             b = jsonReader.read()
         }
 
-        outputStream.close()
         zipOutputStream.close()
+        outputStream.close()
         jsonReader.close()
 
     }

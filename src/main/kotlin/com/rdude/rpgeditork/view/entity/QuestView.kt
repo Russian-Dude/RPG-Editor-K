@@ -13,8 +13,4 @@ class QuestView(wrapper: EntityDataWrapper<QuestData>) : EntityView<QuestData>(w
     override fun saveTo(wrapper: EntityDataWrapper<QuestData>): Boolean {
         TODO("Not yet implemented")
     }
-
-    override fun load(wrapper: EntityDataWrapper<QuestData>) {
-        TODO("Not yet implemented")
-    }
 }

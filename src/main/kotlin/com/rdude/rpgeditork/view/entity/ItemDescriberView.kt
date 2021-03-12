@@ -14,8 +14,4 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
     override fun saveTo(wrapper: EntityDataWrapper<ItemData>): Boolean {
         TODO("Not yet implemented")
     }
-
-    override fun load(wrapper: EntityDataWrapper<ItemData>) {
-        TODO("Not yet implemented")
-    }
 }

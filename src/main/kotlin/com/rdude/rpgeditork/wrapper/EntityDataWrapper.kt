@@ -6,6 +6,7 @@ import com.rdude.rpgeditork.view.MainView
 import com.rdude.rpgeditork.view.entity.EntityView
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import ru.rdude.rpg.game.logic.data.*
 import tornadofx.find
 import tornadofx.getValue
@@ -13,7 +14,7 @@ import tornadofx.onChange
 import tornadofx.setValue
 import java.nio.file.Path
 
-data class EntityDataWrapper<E : EntityData>(val entityData: E) {
+data class EntityDataWrapper<E : EntityData>(val entityData: E) : Comparable<EntityDataWrapper<E>> {
 
     val dataType: EntityDataType<E> = entityDataTypeOf(entityData)
 
@@ -25,16 +26,40 @@ data class EntityDataWrapper<E : EntityData>(val entityData: E) {
     var insideFile: Path? by insideFileProperty
     val isInsideFile: Boolean get() = insideFile != null
 
+    val entityNameProperty = SimpleStringProperty(entityData.nameInEditor)
+
+    val insideAsStringProperty = SimpleStringProperty("Not saved").apply {
+        insideModuleProperty.onChange {
+            if (it != null) {
+                set("Inside ${it.entityData.nameInEditor}")
+            }
+        }
+        insideFileProperty.onChange {
+            if (it != null) {
+                set("Inside ${it.toString()}")
+            }
+        }
+    }
+
     val insideAsString: String
         get() = if (isInsideFile) insideFile.toString()
         else if (isInsideModule) insideModule!!.entityData.nameInEditor
         else ""
 
     val wasChangedProperty: SimpleBooleanProperty = SimpleBooleanProperty(false)
-    var wasChanged: Boolean by wasChangedProperty
+    var wasChanged: Boolean
+        get() = wasChangedProperty.get() || mainView?.changesChecker?.wasChanged == true
+        set(value) {
+            wasChangedProperty.set(value)
+            if (!value) {
+                mainView?.changesChecker?.update()
+            }
+        }
 
     val imagesWereChangedProperty: SimpleBooleanProperty = SimpleBooleanProperty(false)
-    var imagesWereChanged: Boolean by imagesWereChangedProperty
+    var imagesWereChanged: Boolean
+        get() = imagesWereChangedProperty.get() || mainView?.changesChecker?.imagesWereChanged == true
+        set(value) = imagesWereChangedProperty.set(value)
 
     val mainViewProperty: SimpleObjectProperty<EntityView<E>> = SimpleObjectProperty()
     var mainView: EntityView<E>? by mainViewProperty
@@ -68,5 +93,6 @@ data class EntityDataWrapper<E : EntityData>(val entityData: E) {
         return entityData.hashCode()
     }
 
+    override fun compareTo(other: EntityDataWrapper<E>): Int = entityData.guid.compareTo(other.entityData.guid)
 
 }

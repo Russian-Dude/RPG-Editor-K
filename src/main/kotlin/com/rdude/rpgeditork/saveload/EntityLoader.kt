@@ -18,6 +18,7 @@ class EntityLoader : Controller() {
     fun loadFromFile(file: Path): EntityDataWrapper<*>? {
         // create temp folder to hold unpacked data from entity
         val tempFolder = Path.of(Settings.tempFolder.toString(), Functions.generateGuid().toString())
+        Files.createDirectory(tempFolder)
         val entityData = entityUnPacker.unpack(file, tempFolder)
         val wrapper: EntityDataWrapper<*>
         if (entityData != null) {
@@ -25,6 +26,7 @@ class EntityLoader : Controller() {
             // if this entity is not already inside data
             if (insideData == null) {
                 wrapper = EntityDataWrapper(entityData)
+                wrapper.insideFile = file
             }
             // if entity already inside data return it
             else {
@@ -55,6 +57,7 @@ class EntityLoader : Controller() {
                     Files.move(it, Path.of(directoryToMoveImages.toString(), it.fileName.toString()))
                 }
         }
+        Files.deleteIfExists(imagesDir)
         // sounds
         val soundsDir = Path.of(tempFolder.toString(), "sounds")
         if (Files.exists(soundsDir)) {
@@ -65,7 +68,7 @@ class EntityLoader : Controller() {
         }
 
         // delete temp directory from which files were moved to actual temp dir
-        Files.deleteIfExists(tempFolder)
+        tempFolder.toFile().deleteRecursively()
 
         // add to data
         Data.addEntity(wrapper)

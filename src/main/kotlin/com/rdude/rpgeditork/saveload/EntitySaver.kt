@@ -6,6 +6,7 @@ import com.rdude.rpgeditork.enums.hasPackedImages
 import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.SimpleDialog
 import com.rdude.rpgeditork.utils.cloneWithNewGuid
+import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
@@ -14,8 +15,7 @@ import javafx.stage.StageStyle
 import ru.rdude.fxlib.dialogs.SearchDialog
 import ru.rdude.rpg.game.logic.data.EntityData
 import ru.rdude.rpg.game.logic.data.Module
-import tornadofx.Controller
-import tornadofx.chooseFile
+import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -28,9 +28,10 @@ class EntitySaver : Controller() {
     private val modulesDialog = SearchDialog(Data.modulesList).apply {
         searchPane.setTextFieldSearchBy({ it.entityData.nameInEditor })
         initStyle(StageStyle.UNDECORATED)
+        this.dialogPane.style { borderColor += box(c("#353B48")) }
     }
 
-    fun save(wrapper: EntityDataWrapper<*>): Boolean {
+    fun <E : EntityData> save(wrapper: EntityDataWrapper<E>): Boolean {
         val insideFile = wrapper.insideFile
         val insideModule = wrapper.insideModule
 
@@ -38,7 +39,7 @@ class EntitySaver : Controller() {
             return SimpleDialog(
                 vertical = true,
                 defaultReturn = false,
-                dialogText = wrapper.mainView?.name?.get()?: "",
+                dialogText = wrapper.mainView?.name?.get() ?: "",
                 buttons = arrayOf(
                     "Save to module" to { saveToModule(wrapper) },
                     "Save to file" to { saveToFile(wrapper) },
@@ -55,17 +56,26 @@ class EntitySaver : Controller() {
     fun saveToModule(wrapper: EntityDataWrapper<*>): Boolean {
         var res = false
         modulesDialog.showAndWait().ifPresent {
-            res = saveToModule(wrapper, it)
+            loadDialog("Saving...") { res = saveToModule(wrapper, it) }
         }
         return res
     }
 
     fun saveToFile(wrapper: EntityDataWrapper<*>): Boolean {
-        val file = chooseFile(filters = arrayOf(FileChooser.ExtensionFilter(wrapper.dataType.name, "*.${wrapper.dataType.name}")))
-        return if (file.isEmpty()) {
+        val files = chooseFile(
+            filters = arrayOf(FileChooser.ExtensionFilter(wrapper.dataType.name, "*.${wrapper.dataType.name}")),
+            mode = FileChooserMode.Save,
+            initialDirectory = wrapper.dataType.saveLoadPath.toFile()
+        )
+        return if (files.isEmpty()) {
             false
         } else {
-            saveToFile(wrapper, file[0].toPath())
+            var res = false
+            loadDialog("Saving") {
+                wrapper.dataType.saveLoadPath = files[0].toPath().parent
+                res = saveToFile(wrapper, files[0].toPath())
+            }
+            res
         }
     }
 
@@ -76,8 +86,9 @@ class EntitySaver : Controller() {
 
         // check if entity is already saved to file or another module and clone it with new guid if true
         val entityToSave: EntityDataWrapper<E> =
-            if (wrapper.isInsideFile || module != wrapper.insideModule) {
+            if (wrapper.isInsideFile || (wrapper.isInsideModule && module != wrapper.insideModule)) {
                 EntityDataWrapper(wrapper.entityData.cloneWithNewGuid())
+                //TODO("cloning not work")
             } else {
                 wrapper
             }
@@ -127,7 +138,6 @@ class EntitySaver : Controller() {
         if (wrapper.mainView != null) {
             entityToSave.mainView = wrapper.mainView
             entityToSave.mainView?.wrapper = entityToSave
-            entityToSave.mainView?.load(entityToSave)
         }
 
         // set inside module to entity
@@ -147,7 +157,7 @@ class EntitySaver : Controller() {
     fun <E : EntityData> saveToFile(wrapper: EntityDataWrapper<E>, file: Path): Boolean {
 
         val entityToSave: EntityDataWrapper<E> =
-            if (wrapper.isInsideModule || file != wrapper.insideFile) {
+            if (wrapper.isInsideModule || (wrapper.isInsideFile && file != wrapper.insideFile)) {
                 EntityDataWrapper(wrapper.entityData.cloneWithNewGuid())
             } else {
                 wrapper
@@ -192,7 +202,6 @@ class EntitySaver : Controller() {
         if (wrapper.mainView != null) {
             entityToSave.mainView = wrapper.mainView
             entityToSave.mainView?.wrapper = entityToSave
-            entityToSave.mainView?.load(entityToSave)
         }
 
         // set entity inside file

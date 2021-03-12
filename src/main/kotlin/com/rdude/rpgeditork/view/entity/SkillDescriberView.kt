@@ -13,8 +13,4 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
     override fun saveTo(wrapper: EntityDataWrapper<SkillData>): Boolean {
         TODO("Not yet implemented")
     }
-
-    override fun load(wrapper: EntityDataWrapper<SkillData>) {
-        TODO("Not yet implemented")
-    }
 }

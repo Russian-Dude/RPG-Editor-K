@@ -30,7 +30,7 @@ object Data {
     val questsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<QuestData>>()
     val questsList = FXCollections.observableArrayList<EntityDataWrapper<QuestData>>()
 
-    val images = FXCollections.observableHashMap<Long, ResourceWrapper<Image>>()
+    val images = FXCollections.observableHashMap<Long, ImageResourceWrapper>()
 
     // TODO: 25.02.2021 sounds should not be images :)
     val sounds = FXCollections.observableHashMap<Long, ResourceWrapper<Image>>()
@@ -48,32 +48,32 @@ object Data {
         modulesMap.addListener(MapChangeListener { change ->
             modulesList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
-                .forEach { images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
         skillsMap.addListener(MapChangeListener { change ->
             skillsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
-                .forEach { images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
         itemsMap.addListener(MapChangeListener { change ->
             itemsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
-                .forEach { images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
         monstersMap.addListener(MapChangeListener { change ->
             monstersList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
-                .forEach { images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
         eventsMap.addListener(MapChangeListener { change ->
             eventsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
-                .forEach { images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
         questsMap.addListener(MapChangeListener { change ->
             questsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
-                .forEach { images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
 
         // TODO: link sounds
@@ -86,7 +86,7 @@ object Data {
     fun getEntity(guid: Long): EntityDataWrapper<*>? =
         Stream.of(modulesMap, skillsMap, itemsMap, monstersMap, eventsMap, questsMap)
             .flatMap { map -> map.entries.stream() }
-            .filter { entry -> entry.key.equals(guid) }
+            .filter { entry -> entry.key == guid }
             .map { entry -> entry.value }
             .findFirst()
             .orElse(null)

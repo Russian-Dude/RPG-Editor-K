@@ -27,14 +27,22 @@ data class EntityDataType<E : EntityData>(
     val canBeDescriber: Boolean,
     private val newViewFunc: (EntityDataWrapper<E>) -> EntityView<E>,
     val icon: Image = Image("icons/$name.png"),
-    private val newEntityDataFunc: () -> EntityDataWrapper<E>
+    private val newEntityDataFunc: () -> EntityDataWrapper<E>,
+    private val saveLoadPathSet: (Path) -> Unit,
+    private val saveLoadPathGet: () -> Path
 ) {
+
+    var saveLoadPath
+        set(value) = saveLoadPathSet.invoke(value)
+        get() = saveLoadPathGet.invoke()
+
     fun newView(wrapper: EntityDataWrapper<E>): EntityView<E> {
         val view = newViewFunc.invoke(wrapper)
         view.wrapper = wrapper
         wrapper.mainView = view
         return view
     }
+
     fun newEntity() = newEntityDataFunc.invoke()
 }
 
@@ -57,7 +65,7 @@ val <E : EntityData> EntityDataWrapper<E>.entityTypeName: String
 val <E : EntityData> EntityDataWrapper<E>.hasPackedImages: Boolean
     get() = this.dataType.hasPackedImages
 
-fun <E: EntityData> EntityDataWrapper<E>.createNewView() = dataType.newView(this)
+fun <E : EntityData> EntityDataWrapper<E>.createNewView() = dataType.newView(this)
 
 fun entityDataTypeOf(name: String) = when (name.toLowerCase()) {
     "module" -> MODULE
@@ -105,7 +113,9 @@ val MODULE = EntityDataType(
     hasPackedImages = true,
     canBeDescriber = false,
     newViewFunc = { wrapper -> ModuleView(wrapper) },
-    newEntityDataFunc = { EntityDataWrapper(Module(Functions.generateGuid())) }
+    newEntityDataFunc = { EntityDataWrapper(Module(Functions.generateGuid())) },
+    saveLoadPathGet = { Settings.modulesFolder },
+    saveLoadPathSet = { Settings.modulesFolder = it }
 )
 
 val SKILL = EntityDataType(
@@ -124,7 +134,9 @@ val SKILL = EntityDataType(
         if (wrapper.entityData.isDescriber) SkillDescriberView(wrapper)
         else SkillView(wrapper)
     },
-    newEntityDataFunc = { EntityDataWrapper(SkillData(Functions.generateGuid())) }
+    newEntityDataFunc = { EntityDataWrapper(SkillData(Functions.generateGuid())) },
+    saveLoadPathGet = { Settings.skillsFolder },
+    saveLoadPathSet = { Settings.skillsFolder = it }
 )
 
 val ITEM = EntityDataType(
@@ -143,7 +155,9 @@ val ITEM = EntityDataType(
         if (wrapper.entityData.isDescriber) ItemDescriberView(wrapper)
         else ItemView(wrapper)
     },
-    newEntityDataFunc = { EntityDataWrapper(ItemData(Functions.generateGuid())) }
+    newEntityDataFunc = { EntityDataWrapper(ItemData(Functions.generateGuid())) },
+    saveLoadPathGet = { Settings.itemsFolder },
+    saveLoadPathSet = { Settings.itemsFolder = it }
 )
 
 val MONSTER = EntityDataType(
@@ -162,7 +176,9 @@ val MONSTER = EntityDataType(
         if (wrapper.entityData.isDescriber) MonsterDescriberView(wrapper)
         else MonsterView(wrapper)
     },
-    newEntityDataFunc = { EntityDataWrapper(MonsterData(Functions.generateGuid())) }
+    newEntityDataFunc = { EntityDataWrapper(MonsterData(Functions.generateGuid())) },
+    saveLoadPathGet = { Settings.monstersFolder },
+    saveLoadPathSet = { Settings.monstersFolder = it }
 )
 
 val EVENT = EntityDataType(
@@ -178,7 +194,9 @@ val EVENT = EntityDataType(
     hasPackedImages = false,
     canBeDescriber = false,
     newViewFunc = { wrapper -> EventView(wrapper) },
-    newEntityDataFunc = { EntityDataWrapper(EventData()) }
+    newEntityDataFunc = { EntityDataWrapper(EventData()) },
+    saveLoadPathGet = { Settings.eventsFolder },
+    saveLoadPathSet = { Settings.eventsFolder = it }
 )
 
 val QUEST = EntityDataType(
@@ -194,5 +212,7 @@ val QUEST = EntityDataType(
     hasPackedImages = false,
     canBeDescriber = false,
     newViewFunc = { wrapper -> QuestView(wrapper) },
-    newEntityDataFunc = { EntityDataWrapper(QuestData()) }
+    newEntityDataFunc = { EntityDataWrapper(QuestData()) },
+    saveLoadPathGet = { Settings.questsFolder },
+    saveLoadPathSet = { Settings.questsFolder = it }
 )

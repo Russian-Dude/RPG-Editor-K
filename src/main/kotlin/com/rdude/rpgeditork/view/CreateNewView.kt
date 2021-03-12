@@ -1,10 +1,21 @@
 package com.rdude.rpgeditork.view
 
 import com.rdude.rpgeditork.enums.*
+import com.rdude.rpgeditork.saveload.EntityLoader
+import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.utils.InfoDialog
+import com.rdude.rpgeditork.utils.loadDialog
 import javafx.geometry.Pos
+import javafx.scene.control.ProgressIndicator
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.text.TextAlignment
+import javafx.stage.FileChooser
 import javafx.stage.Screen
+import ru.rdude.fxlib.containers.selector.SelectorContainer
+import ru.rdude.rpg.game.logic.data.SkillData
 import tornadofx.*
 
 class CreateNewView : Fragment() {
@@ -47,8 +58,7 @@ class CreateNewView : Fragment() {
                             hovered.replaceWith(unHovered, ViewTransition.Flip(0.2.seconds, true))
                         }
                     }
-                }
-                else {
+                } else {
                     hovered.replaceWith(unHovered, ViewTransition.Flip(0.2.seconds, true))
                     runAsync {
                         Thread.sleep(250)
@@ -103,7 +113,9 @@ class CreateNewView : Fragment() {
                     prefHeight = regionHeight * 0.5
                     hgrow = Priority.ALWAYS
                     action {
-                        find<MainView>().openEntity(type.newEntity())
+                        loadDialog("Creating new ${type.name}...") {
+                            find<MainView>().openEntity(type.newEntity())
+                        }
                     }
                 }
                 if (type.canBeDescriber) {
@@ -115,9 +127,11 @@ class CreateNewView : Fragment() {
                         prefHeight = regionHeight * 0.5
                         hgrow = Priority.ALWAYS
                         action {
-                            val wrapper = type.newEntity()
-                            wrapper.entityData.isDescriber = true
-                            find<MainView>().openEntity(wrapper)
+                            loadDialog("Creating new ${type.name} describer...") {
+                                val wrapper = type.newEntity()
+                                wrapper.entityData.isDescriber = true
+                                find<MainView>().openEntity(wrapper)
+                            }
                         }
                     }
                 }
@@ -134,6 +148,29 @@ class CreateNewView : Fragment() {
                     isFillWidth = true
                     prefHeight = regionHeight * 0.5
                     hgrow = Priority.ALWAYS
+                    val loader = find<EntityLoader>()
+                    action {
+                        val files = chooseFile(
+                            title = "Open ${type.name}",
+                            filters = arrayOf(FileChooser.ExtensionFilter(type.name, "*.${type.name}")),
+                            initialDirectory = type.saveLoadPath.toFile(),
+                            mode = FileChooserMode.Single
+                        )
+                        if (files.isEmpty()) {
+                            return@action
+                        }
+                        val file = files[0].toPath()
+                        type.saveLoadPath = file.parent
+                        loadDialog("Loading ${type.name}...") {
+                            val wrapper = loader.loadFromFile(file)
+                            if (wrapper == null) {
+                                InfoDialog("Failed to load ${type.name}", image = Image("icons\\warning.png")).show()
+                            }
+                            else {
+                                find<MainView>().openEntity(wrapper)
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -14,8 +14,4 @@ class EventView(wrapper: EntityDataWrapper<EventData>) : EntityView<EventData>(w
     override fun saveTo(wrapper: EntityDataWrapper<EventData>): Boolean {
         TODO("Not yet implemented")
     }
-
-    override fun load(wrapper: EntityDataWrapper<EventData>) {
-        TODO("Not yet implemented")
-    }
 }

@@ -13,8 +13,4 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
     override fun saveTo(wrapper: EntityDataWrapper<Module>): Boolean {
         TODO("Not yet implemented")
     }
-
-    override fun load(wrapper: EntityDataWrapper<Module>) {
-        TODO("Not yet implemented")
-    }
 }
