@@ -3,6 +3,7 @@ package com.rdude.rpgeditork.enums
 import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.view.entity.*
+import com.rdude.rpgeditork.view.search.*
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
@@ -29,7 +30,8 @@ data class EntityDataType<E : EntityData>(
     val icon: Image = Image("icons/$name.png"),
     private val newEntityDataFunc: () -> EntityDataWrapper<E>,
     private val saveLoadPathSet: (Path) -> Unit,
-    private val saveLoadPathGet: () -> Path
+    private val saveLoadPathGet: () -> Path,
+    private val createSearchViewFunction: () -> EntitySearchView<E>
 ) {
 
     var saveLoadPath
@@ -42,6 +44,8 @@ data class EntityDataType<E : EntityData>(
         wrapper.mainView = view
         return view
     }
+
+    fun newSearchView(): EntitySearchView<E> = createSearchViewFunction.invoke()
 
     fun newEntity() = newEntityDataFunc.invoke()
 }
@@ -78,12 +82,12 @@ fun entityDataTypeOf(name: String) = when (name.toLowerCase()) {
 }
 
 inline fun <reified E : EntityData> entityDataTypeOf(): EntityDataType<E> = when (E::class.java) {
-    is Module -> MODULE as EntityDataType<E>
-    is SkillData -> SKILL as EntityDataType<E>
-    is ItemData -> ITEM as EntityDataType<E>
-    is MonsterData -> MONSTER as EntityDataType<E>
-    is EventData -> EVENT as EntityDataType<E>
-    is QuestData -> QUEST as EntityDataType<E>
+    Module::class.java -> MODULE as EntityDataType<E>
+    SkillData::class.java -> SKILL as EntityDataType<E>
+    ItemData::class.java -> ITEM as EntityDataType<E>
+    MonsterData::class.java -> MONSTER as EntityDataType<E>
+    EventData::class.java -> EVENT as EntityDataType<E>
+    QuestData::class.java -> QUEST as EntityDataType<E>
     else -> throw IllegalArgumentException("Wrapper for  ${E::class.java} not implemented")
 }
 
@@ -115,7 +119,8 @@ val MODULE = EntityDataType(
     newViewFunc = { wrapper -> ModuleView(wrapper) },
     newEntityDataFunc = { EntityDataWrapper(Module(Functions.generateGuid())) },
     saveLoadPathGet = { Settings.modulesFolder },
-    saveLoadPathSet = { Settings.modulesFolder = it }
+    saveLoadPathSet = { Settings.modulesFolder = it },
+    createSearchViewFunction = { ModuleSearchView() }
 )
 
 val SKILL = EntityDataType(
@@ -136,7 +141,8 @@ val SKILL = EntityDataType(
     },
     newEntityDataFunc = { EntityDataWrapper(SkillData(Functions.generateGuid())) },
     saveLoadPathGet = { Settings.skillsFolder },
-    saveLoadPathSet = { Settings.skillsFolder = it }
+    saveLoadPathSet = { Settings.skillsFolder = it },
+    createSearchViewFunction = { SkillSearchView() }
 )
 
 val ITEM = EntityDataType(
@@ -157,7 +163,8 @@ val ITEM = EntityDataType(
     },
     newEntityDataFunc = { EntityDataWrapper(ItemData(Functions.generateGuid())) },
     saveLoadPathGet = { Settings.itemsFolder },
-    saveLoadPathSet = { Settings.itemsFolder = it }
+    saveLoadPathSet = { Settings.itemsFolder = it },
+    createSearchViewFunction = { ItemSearchView() }
 )
 
 val MONSTER = EntityDataType(
@@ -178,7 +185,8 @@ val MONSTER = EntityDataType(
     },
     newEntityDataFunc = { EntityDataWrapper(MonsterData(Functions.generateGuid())) },
     saveLoadPathGet = { Settings.monstersFolder },
-    saveLoadPathSet = { Settings.monstersFolder = it }
+    saveLoadPathSet = { Settings.monstersFolder = it },
+    createSearchViewFunction = { MonsterSearchView() }
 )
 
 val EVENT = EntityDataType(
@@ -196,7 +204,8 @@ val EVENT = EntityDataType(
     newViewFunc = { wrapper -> EventView(wrapper) },
     newEntityDataFunc = { EntityDataWrapper(EventData()) },
     saveLoadPathGet = { Settings.eventsFolder },
-    saveLoadPathSet = { Settings.eventsFolder = it }
+    saveLoadPathSet = { Settings.eventsFolder = it },
+    createSearchViewFunction = { EventSearchView() }
 )
 
 val QUEST = EntityDataType(
@@ -214,5 +223,6 @@ val QUEST = EntityDataType(
     newViewFunc = { wrapper -> QuestView(wrapper) },
     newEntityDataFunc = { EntityDataWrapper(QuestData()) },
     saveLoadPathGet = { Settings.questsFolder },
-    saveLoadPathSet = { Settings.questsFolder = it }
+    saveLoadPathSet = { Settings.questsFolder = it },
+    createSearchViewFunction = { QuestSearchView() }
 )

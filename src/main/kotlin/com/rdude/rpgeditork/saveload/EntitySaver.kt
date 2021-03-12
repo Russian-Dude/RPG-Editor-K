@@ -65,7 +65,9 @@ class EntitySaver : Controller() {
         val files = chooseFile(
             filters = arrayOf(FileChooser.ExtensionFilter(wrapper.dataType.name, "*.${wrapper.dataType.name}")),
             mode = FileChooserMode.Save,
-            initialDirectory = wrapper.dataType.saveLoadPath.toFile()
+            initialDirectory = wrapper.dataType.saveLoadPath.toFile(),
+            title = "Save ${wrapper.dataType.name}",
+            op = { this.initialFileName = wrapper.mainView?.name?.get() ?: "Unnamed ${wrapper.dataType.name}" }
         )
         return if (files.isEmpty()) {
             false

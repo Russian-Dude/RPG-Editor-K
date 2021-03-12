@@ -1,18 +1,23 @@
 package com.rdude.rpgeditork.utils
 
+import com.rdude.rpgeditork.enums.entityDataTypeOf
 import com.rdude.rpgeditork.saveload.GameJsonSerializerController
 import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.layout.*
 import javafx.stage.StageStyle
+import javafx.util.StringConverter
+import ru.rdude.fxlib.dialogs.SearchDialog
 import ru.rdude.rpg.game.logic.data.EntityData
 import ru.rdude.rpg.game.utils.Functions
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.function.Function
 
 fun <T : EntityData> T.cloneWithNewGuid(): T {
     val serializer = find<GameJsonSerializerController>().gameJsonSerializer
@@ -60,6 +65,26 @@ fun clearTempFolders() {
         .forEach {
             it.toFile().deleteRecursively()
         }
+}
+
+inline fun <reified E: EntityData> SearchDialog<EntityDataWrapper<E>>.config() {
+    initStyle(StageStyle.UNDECORATED)
+    dialogPane.style {
+        backgroundColor += c("#F5F6FA")
+        borderColor += box(c("#353B48"))
+    }
+    with(this.searchPane) {
+        setNameBy { it.entityNameProperty.get() }
+        setTextFieldSearchBy( { it.entityNameProperty.get() }, { it.entityData.name } )
+        val searchView = entityDataTypeOf<E>().newSearchView()
+        addExtraSearchNode(searchView.root)
+        setSearchOptions(searchView.searchOptions)
+        searchView.configPopup(this@config)
+    }
+}
+
+fun ComboBox<*>.setNullToStringConverter(nullToString: String) {
+    converter = NullableStringConverter(nullToString)
 }
 
 

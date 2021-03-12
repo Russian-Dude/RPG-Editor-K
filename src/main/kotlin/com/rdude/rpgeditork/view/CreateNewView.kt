@@ -4,6 +4,7 @@ import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.saveload.EntityLoader
 import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.InfoDialog
+import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.loadDialog
 import javafx.geometry.Pos
 import javafx.scene.control.ProgressIndicator
@@ -141,6 +142,14 @@ class CreateNewView : Fragment() {
                     isFillWidth = true
                     prefHeight = regionHeight * 0.5
                     hgrow = Priority.ALWAYS
+                    action {
+                        val wrapper = Dialogs.skillsSearchDialog.showAndWait()
+                        if (wrapper.isPresent) {
+                            loadDialog("Loading ${type.name}...") {
+                                find<MainView>().openEntity(wrapper.get())
+                            }
+                        }
+                    }
                 }
                 button {
                     text = "load file"
@@ -165,8 +174,7 @@ class CreateNewView : Fragment() {
                             val wrapper = loader.loadFromFile(file)
                             if (wrapper == null) {
                                 InfoDialog("Failed to load ${type.name}", image = Image("icons\\warning.png")).show()
-                            }
-                            else {
+                            } else {
                                 find<MainView>().openEntity(wrapper)
                             }
                         }
