@@ -3,6 +3,7 @@ package com.rdude.rpgeditork.view
 import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.saveload.EntityLoader
 import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.style.EditorStyles
 import com.rdude.rpgeditork.utils.InfoDialog
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.loadDialog
@@ -82,6 +83,7 @@ class CreateNewView : Fragment() {
 
         override val root =
             button {
+                style(true) { backgroundColor += EditorStyles.whiteGrey }
                 text = type.name.capitalize()
                 prefWidth = regionWidth
                 prefHeight = regionHeight
@@ -108,6 +110,7 @@ class CreateNewView : Fragment() {
                 alignment = Pos.CENTER
                 maxWidth = regionWidth
                 button {
+                    style(true) { backgroundColor += EditorStyles.whiteGrey }
                     text = "new"
                     maxWidth = maxButtonWidth
                     isFillWidth = true
@@ -121,6 +124,7 @@ class CreateNewView : Fragment() {
                 }
                 if (type.canBeDescriber) {
                     button {
+                        style(true) { backgroundColor += EditorStyles.whiteGrey }
                         textAlignment = TextAlignment.CENTER
                         text = "new\r\ndescriber"
                         maxWidth = maxButtonWidth
@@ -137,6 +141,7 @@ class CreateNewView : Fragment() {
                     }
                 }
                 button {
+                    style(true) { backgroundColor += EditorStyles.whiteGrey }
                     text = "open"
                     maxWidth = maxButtonWidth
                     isFillWidth = true
@@ -152,6 +157,7 @@ class CreateNewView : Fragment() {
                     }
                 }
                 button {
+                    style(true) { backgroundColor += EditorStyles.whiteGrey }
                     text = "load file"
                     maxWidth = maxButtonWidth
                     isFillWidth = true

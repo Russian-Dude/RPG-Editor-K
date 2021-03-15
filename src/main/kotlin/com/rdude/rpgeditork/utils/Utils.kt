@@ -76,7 +76,9 @@ inline fun <reified E: EntityData> SearchDialog<EntityDataWrapper<E>>.config() {
     with(this.searchPane) {
         setNameBy { it.entityNameProperty.get() }
         setTextFieldSearchBy( { it.entityNameProperty.get() }, { it.entityData.name } )
-        val searchView = entityDataTypeOf<E>().newSearchView()
+        val dataType = entityDataTypeOf<E>()
+        val searchView = dataType.newSearchView()
+        this@config.headerText = "Select ${dataType.name}"
         addExtraSearchNode(searchView.root)
         setSearchOptions(searchView.searchOptions)
         searchView.configPopup(this@config)

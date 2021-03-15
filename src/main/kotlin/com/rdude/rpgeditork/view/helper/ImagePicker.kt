@@ -41,7 +41,6 @@ class ImagePicker(
             field = value
         }
 
-    //TODO("Images were changed should be set")
 
     override val root = borderpane {
         top {

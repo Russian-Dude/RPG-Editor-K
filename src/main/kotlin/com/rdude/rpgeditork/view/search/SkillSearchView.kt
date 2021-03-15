@@ -314,7 +314,7 @@ class SkillSearchView : EntitySearchView<SkillData>() {
 
         vbox {
             spacing = 10.0
-            alignment = Pos.CENTER
+            alignment = Pos.TOP_CENTER
 
             vbox {
                 text("Deal damage")

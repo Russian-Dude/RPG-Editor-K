@@ -5,6 +5,7 @@ import com.rdude.rpgeditork.enums.FormulaVariable
 import com.rdude.rpgeditork.enums.NullableSize
 import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.nullableVersion
+import com.rdude.rpgeditork.style.EditorStyles
 import com.rdude.rpgeditork.utils.*
 import com.rdude.rpgeditork.view.helper.ImagePicker
 import com.rdude.rpgeditork.view.helper.SkillsOnBeingActionSelectorElement
@@ -35,6 +36,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val saveButton = button("Save") {
+        addClass(EditorStyles.withoutBorders)
         action {
             if (wrapper.isInsideModule || wrapper.isInsideFile) {
                 loadDialog("Saving...") {
@@ -47,6 +49,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val saveToButton = button("Save to") {
+        addClass(EditorStyles.withoutBorders)
         action { saveToContextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
     }
 
@@ -421,6 +424,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         { w -> w.entityData.name },
         { w -> w.entityData.nameInEditor })
         .apply {
+            searchDialog.config()
             addOption { e ->
                 e.textField.filterInput {
                     it.controlNewText.isInt() && it.controlNewText.toInt().isPositive()
@@ -434,7 +438,6 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 entity.requirements.items.clear()
                 selectedElementsNodes.forEach { entity.requirements.items.put(it.value.entityData.guid, it.textField.text.toInt()) }
             }
-            //TODO("config search pane node")
         }
 
     val keepItemsToggleGroup = ToggleGroup()
@@ -454,6 +457,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         { w -> w.entityData.nameInEditor },
         { w -> w.entityData.name })
         .apply {
+            searchDialog.config()
             entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
@@ -462,7 +466,6 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 entity.skillsCouldCast.clear()
                 selectedElementsNodes.forEach { entity.skillsCouldCast.put(it.value.entityData.guid, it.percents.toFloat()) }
             }
-            //TODO("config search pane node")
         }
 
     val skillsMustCast = SelectorContainer.withPercents(
@@ -471,6 +474,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         { w -> w.entityData.nameInEditor },
         { w -> w.entityData.name })
         .apply {
+            searchDialog.config()
             entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
@@ -479,7 +483,6 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 entity.skillsMustCast.clear()
                 selectedElementsNodes.forEach { entity.skillsMustCast.put(it.value.entityData.guid, it.percents.toFloat()) }
             }
-            //TODO("config search pane node")
         }
 
     val skillsOnBeingAction =
@@ -983,7 +986,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             alignment = Pos.CENTER_LEFT
             anchorpaneConstraints {
                 leftAnchor = 160.0
-                topAnchor = 4.0
+                topAnchor = 2.0
             }
             add(saveButton)
             add(saveToButton)

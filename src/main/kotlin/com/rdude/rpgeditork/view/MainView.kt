@@ -4,7 +4,9 @@ import com.rdude.rpgeditork.AnotherTest
 import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.createNewView
 import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.style.EditorStyles
 import com.rdude.rpgeditork.utils.clearTempFolders
+import com.rdude.rpgeditork.utils.limitHeaderArea
 import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.view.entity.EntityView
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
@@ -45,8 +47,9 @@ class MainView : View() {
             primaryStage.maxHeight = screenHeight
             primaryStage.height = screenHeight
             tabPane = tabpane {
+                limitHeaderArea(screenWidth - 200.0)
                 tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
-                newTab = tab(" + ") {
+                newTab = tab("  ➕  ") {
                     prefWidth = screenWidth
                     prefHeight = screenHeight
                     isClosable = false
@@ -59,16 +62,19 @@ class MainView : View() {
                 }
                 alignment = Pos.CENTER
                 button {
-                    text = "Settings"
+                    addClass(EditorStyles.withoutBorders)
+                    text = "  \uD83D\uDD27  "
                 }
                 button {
-                    text = "_"
+                    addClass(EditorStyles.withoutBorders)
+                    text = "➖"
                     action {
                         currentStage?.isIconified = true
                     }
                 }
                 button {
-                    text = "X"
+                    addClass(EditorStyles.withoutBorders)
+                    text = "❌"
                     action {
                         val tabsToRemove = mutableListOf<EntityView<*>>()
                         for (entry in entityViewTabs) {
@@ -97,7 +103,8 @@ class MainView : View() {
             val tab = Tab()
             val view = wrapper.createNewView()
             // bind tab title to view name
-            tab.textProperty().bind(view.name)
+            tab.text = view.name.get()
+            view.name.onChange { tab.text = it }
             // add icon
             tab.graphic = ImageView(wrapper.dataType.icon)
             // add view to tab's content

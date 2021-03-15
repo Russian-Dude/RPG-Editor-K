@@ -5,6 +5,7 @@ import com.rdude.rpgeditork.style.EditorStyles
 import com.rdude.rpgeditork.utils.clearTempFolders
 import com.rdude.rpgeditork.view.MainView
 import tornadofx.App
+import tornadofx.importStylesheet
 import tornadofx.isLong
 import tornadofx.reloadStylesheetsOnFocus
 import java.nio.file.Files
