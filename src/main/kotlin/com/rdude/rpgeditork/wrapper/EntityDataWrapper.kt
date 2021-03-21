@@ -7,6 +7,8 @@ import com.rdude.rpgeditork.view.entity.EntityView
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import ru.rdude.rpg.game.logic.data.*
 import tornadofx.find
 import tornadofx.getValue
@@ -64,6 +66,8 @@ data class EntityDataWrapper<E : EntityData>(val entityData: E) : Comparable<Ent
     val mainViewProperty: SimpleObjectProperty<EntityView<E>> = SimpleObjectProperty()
     var mainView: EntityView<E>? by mainViewProperty
     val open: Boolean get() = mainView != null
+
+    val dependencies: ObservableList<Long> = FXCollections.observableArrayList(entityData.moduleDependencies)
 
     init {
         // entity can be inside file or module and not inside both

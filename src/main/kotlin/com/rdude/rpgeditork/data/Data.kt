@@ -4,6 +4,7 @@ import com.rdude.rpgeditork.enums.dataMap
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
 import com.rdude.rpgeditork.wrapper.ResourceWrapper
+import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.MapChangeListener
 import javafx.scene.image.Image
@@ -13,22 +14,22 @@ import java.util.stream.Stream
 object Data {
 
     val modulesMap = FXCollections.observableHashMap<Long, EntityDataWrapper<Module>>()
-    val modulesList = FXCollections.observableArrayList<EntityDataWrapper<Module>>()
+    val modulesList = FXCollections.observableArrayList<EntityDataWrapper<Module>> { w -> arrayOf(w.entityNameProperty) }
 
     val skillsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<SkillData>>()
-    val skillsList = FXCollections.observableArrayList<EntityDataWrapper<SkillData>>()
+    val skillsList = FXCollections.observableArrayList<EntityDataWrapper<SkillData>> { w -> arrayOf(w.entityNameProperty) }
 
     val itemsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<ItemData>>()
-    val itemsList = FXCollections.observableArrayList<EntityDataWrapper<ItemData>>()
+    val itemsList = FXCollections.observableArrayList<EntityDataWrapper<ItemData>> { w -> arrayOf(w.entityNameProperty) }
 
     val monstersMap = FXCollections.observableHashMap<Long, EntityDataWrapper<MonsterData>>()
-    val monstersList = FXCollections.observableArrayList<EntityDataWrapper<MonsterData>>()
+    val monstersList = FXCollections.observableArrayList<EntityDataWrapper<MonsterData>> { w -> arrayOf(w.entityNameProperty) }
 
     val eventsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<EventData>>()
-    val eventsList = FXCollections.observableArrayList<EntityDataWrapper<EventData>>()
+    val eventsList = FXCollections.observableArrayList<EntityDataWrapper<EventData>> { w -> arrayOf(w.entityNameProperty) }
 
     val questsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<QuestData>>()
-    val questsList = FXCollections.observableArrayList<EntityDataWrapper<QuestData>>()
+    val questsList = FXCollections.observableArrayList<EntityDataWrapper<QuestData>> { w -> arrayOf(w.entityNameProperty) }
 
     val images = FXCollections.observableHashMap<Long, ImageResourceWrapper>()
 

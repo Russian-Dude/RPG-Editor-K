@@ -30,7 +30,7 @@ class SkillsOnBeingActionSelectorElement : GridPane(), SelectorElementNode<Being
     }
 
     val skillsComboBox = SearchComboBox(Data.skillsList).apply {
-        setNameBy { w -> w.entityNameProperty.get() }
+        setNameByProperty { w -> w.entityNameProperty }
         setSearchBy( { w -> w.entityNameProperty.get() }, { w -> w.entityData.nameInEditor } )
         value = if (Data.skillsList.size > 0) Data.skillsList[0] else null
         maxWidth = Double.MAX_VALUE

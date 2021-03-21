@@ -11,7 +11,8 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
 
     }
 
-    override fun saveTo(wrapper: EntityDataWrapper<ItemData>): Boolean {
-        TODO("Not yet implemented")
+    override fun reasonsNotToSave(): List<String> {
+        //TODO("Not yet implemented")
+        return listOf()
     }
 }

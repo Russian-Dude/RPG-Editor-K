@@ -5,8 +5,9 @@ import com.rdude.rpgeditork.enums.FormulaVariable
 import com.rdude.rpgeditork.enums.NullableSize
 import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.nullableVersion
-import com.rdude.rpgeditork.style.EditorStyles
+import com.rdude.rpgeditork.style.LightTheme
 import com.rdude.rpgeditork.utils.*
+import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.view.helper.ImagePicker
 import com.rdude.rpgeditork.view.helper.SkillsOnBeingActionSelectorElement
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
@@ -21,6 +22,8 @@ import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.fxlib.containers.selector.SelectorElementAutocompletionTextField
 import ru.rdude.fxlib.textfields.AutocompletionTextField
 import ru.rdude.rpg.game.logic.coefficients.Coefficients
+import ru.rdude.rpg.game.logic.data.ItemData
+import ru.rdude.rpg.game.logic.data.MonsterData
 import ru.rdude.rpg.game.logic.data.SkillData
 import ru.rdude.rpg.game.logic.entities.beings.Player
 import ru.rdude.rpg.game.logic.entities.skills.SkillParser
@@ -29,29 +32,6 @@ import ru.rdude.rpg.game.logic.enums.Target
 import tornadofx.*
 
 class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(wrapper) {
-
-    val saveToContextMenu = contextmenu {
-        item("Save to module").action { saver.saveToModule(wrapper) }
-        item("Save to file").action { saver.saveToFile(wrapper) }
-    }
-
-    val saveButton = button("Save") {
-        addClass(EditorStyles.withoutBorders)
-        action {
-            if (wrapper.isInsideModule || wrapper.isInsideFile) {
-                loadDialog("Saving...") {
-                    saver.save(wrapper)
-                }
-            } else {
-                saveToContextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
-            }
-        }
-    }
-
-    val saveToButton = button("Save to") {
-        addClass(EditorStyles.withoutBorders)
-        action { saveToContextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
-    }
 
     val nameField: TextField = textfield {
         text = entityData.name ?: ""
@@ -79,7 +59,8 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         fieldsSaver.add {
             val n = if (text.isNotBlank()) text else promptText
             wrapper.entityNameProperty.set(n)
-            it.nameInEditor = n}
+            it.nameInEditor = n
+        }
     }
 
     val attackType = ComboBox(ObservableEnums.ATTACK_TYPES).apply {
@@ -132,14 +113,14 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         fieldsSaver.add { it.mainTarget = value }
     }
 
-    val targets = SelectorContainer.simple(ObservableEnums.SUB_TARGETS).apply {
+    val targets = SelectorContainer.simple(ObservableEnums.SUB_TARGETS).get().apply {
         setHasSearchButton(false)
         addAll(entityData.targets)
         changesChecker.add(this) { selected.sorted() }
         fieldsSaver.add { it.targets = selected }
     }
 
-    val damageElementCoefficients = SelectorContainer.withPercents(ObservableEnums.ELEMENTS).apply {
+    val damageElementCoefficients = SelectorContainer.withPercents(ObservableEnums.ELEMENTS).get().apply {
         setHasSearchButton(false)
         entityData.coefficients.atk().element().coefficientsMap
             .filter { it.value != 1.0 }
@@ -147,12 +128,13 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         changesChecker.add(this) { selected to selectedElementsNodes.map { s -> s.percents }.sorted() }
         fieldsSaver.add { entity ->
             ObservableEnums.ELEMENTS.forEach { entity.coefficients.atk().element().coefficientsMap[it] = 1.0 }
-            selectedElementsNodes.forEach { entity.coefficients.atk().element().set(it.value, it.coefficient)
+            selectedElementsNodes.forEach {
+                entity.coefficients.atk().element().set(it.value, it.coefficient)
             }
         }
     }
 
-    val damageBeingTypeCoefficients = SelectorContainer.withPercents(ObservableEnums.BEING_TYPES).apply {
+    val damageBeingTypeCoefficients = SelectorContainer.withPercents(ObservableEnums.BEING_TYPES).get().apply {
         setHasSearchButton(false)
         entityData.coefficients.atk().beingType().coefficientsMap
             .filter { it.value != 1.0 }
@@ -160,12 +142,13 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         changesChecker.add(this) { selected to selectedElementsNodes.map { s -> s.percents }.sorted() }
         fieldsSaver.add { entity ->
             ObservableEnums.BEING_TYPES.forEach { entity.coefficients.atk().beingType().coefficientsMap[it] = 1.0 }
-            selectedElementsNodes.forEach { entity.coefficients.atk().beingType().set(it.value, it.coefficient)
+            selectedElementsNodes.forEach {
+                entity.coefficients.atk().beingType().set(it.value, it.coefficient)
             }
         }
     }
 
-    val damageSizeCoefficients = SelectorContainer.withPercents(ObservableEnums.SIZES).apply {
+    val damageSizeCoefficients = SelectorContainer.withPercents(ObservableEnums.SIZES).get().apply {
         setHasSearchButton(false)
         entityData.coefficients.atk().size().coefficientsMap
             .filter { it.value != 1.0 }
@@ -177,7 +160,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val elements = SelectorContainer.simple(ObservableEnums.ELEMENTS).apply {
+    val elements = SelectorContainer.simple(ObservableEnums.ELEMENTS).get().apply {
         setHasSearchButton(false)
         addAll(entityData.elements)
         changesChecker.add(this) { selected.sorted() }
@@ -350,35 +333,33 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val stats: SelectorContainer<StatName, SelectorElementAutocompletionTextField<StatName, FormulaVariable>> =
-        SelectorContainer.withAutocompletionTextField(
-            ObservableEnums.STAT_NAMES,
-            ObservableEnums.FORMULA_VARIABLES,
-            StatName::getVariableName,
-            FormulaVariable::variable,
-            StatName::getVariableName
-        ).apply {
-            setHasSearchButton(false)
-            addOption { s -> s.setWordsDelimiter("[-+/*\\s]") }
-            addOption { s -> s.setTextFieldType(AutocompletionTextField.Type.WORDS) }
-            addOption { s -> s.setTextFieldDescriptionFunction(FormulaVariable::description) }
-            entityData.stats.forEach { if (it.value.isNotBlank()) add(it.key).setText(it.value) }
-            changesChecker.add(this) {
-                selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
+        SelectorContainer.withAutocompletionTextField(ObservableEnums.STAT_NAMES, ObservableEnums.FORMULA_VARIABLES)
+            .nameBy(StatName::getVariableName)
+            .textFieldNameBy(FormulaVariable::variable)
+            .textFieldDescription(FormulaVariable::description)
+            .textFieldType(AutocompletionTextField.Type.WORDS)
+            .wordsDelimiter("[-+/*\\s]")
+            .get()
+            .apply {
+                setHasSearchButton(false)
+                entityData.stats.forEach { if (it.value.isNotBlank()) add(it.key).setText(it.value) }
+                changesChecker.add(this) {
+                    selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
+                }
+                fieldsSaver.add { entity ->
+                    ObservableEnums.STAT_NAMES.forEach { entity.stats[it] = "" }
+                    selectedElementsNodes.forEach { entity.stats[it.value] = it.textField.text }
+                }
             }
-            fieldsSaver.add { entity ->
-                ObservableEnums.STAT_NAMES.forEach { entity.stats[it] = "" }
-                selectedElementsNodes.forEach { entity.stats[it.value] = it.textField.text }
-            }
-        }
 
-    val transformationBeingTypes = SelectorContainer.simple(ObservableEnums.BEING_TYPES).apply {
+    val transformationBeingTypes = SelectorContainer.simple(ObservableEnums.BEING_TYPES).get().apply {
         setHasSearchButton(false)
         addAll(entityData.transformation.beingTypes)
         changesChecker.add(this) { selected.sorted() }
         fieldsSaver.add { it.transformation.beingTypes = selected.toHashSet() }
     }
 
-    val transformationElements = SelectorContainer.simple(ObservableEnums.ELEMENTS).apply {
+    val transformationElements = SelectorContainer.simple(ObservableEnums.ELEMENTS).get().apply {
         setHasSearchButton(false)
         addAll(entityData.transformation.elements)
         changesChecker.add(this) { selected.sorted() }
@@ -402,7 +383,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.transformation.isOverride
     }
 
-    val statsRequirements = SelectorContainer.withTextField(ObservableEnums.STAT_NAMES).apply {
+    val statsRequirements = SelectorContainer.withTextField(ObservableEnums.STAT_NAMES).get().apply {
         setHasSearchButton(false)
         addOption { e -> e.textField.filterInput { it.controlNewText.isInt() } }
         addOption { e -> e.setSizePercentages(75.0, 25.0) }
@@ -414,15 +395,16 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         changesChecker.add(this) { selected.sorted() to selectedElementsNodes.map { e -> e.textField.text }.sorted() }
         fieldsSaver.add { entity ->
             entity.requirements.stats.forEachWithNestedStats { it.set(0.0) }
-            selectedElementsNodes.forEach { entity.requirements.stats.get(it.value.clazz).set(it.textField.text.toDouble()) }
+            selectedElementsNodes.forEach {
+                entity.requirements.stats.get(it.value.clazz).set(it.textField.text.toDouble())
+            }
         }
     }
 
-    val itemsRequirements = SelectorContainer.withTextField(
-        Data.itemsList,
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.name },
-        { w -> w.entityData.nameInEditor })
+    val itemsRequirements = SelectorContainer.withTextField(Data.itemsList)
+        .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
+        .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
+        .get()
         .apply {
             searchDialog.config()
             addOption { e ->
@@ -436,7 +418,12 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
             fieldsSaver.add { entity ->
                 entity.requirements.items.clear()
-                selectedElementsNodes.forEach { entity.requirements.items.put(it.value.entityData.guid, it.textField.text.toInt()) }
+                selectedElementsNodes.forEach {
+                    entity.requirements.items.put(
+                        it.value.entityData.guid,
+                        it.textField.text.toInt()
+                    )
+                }
             }
         }
 
@@ -451,11 +438,10 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.requirements.isTakeItems
     }
 
-    val skillsCanCast = SelectorContainer.withPercents(
-        Data.skillsList,
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.name })
+    val skillsCanCast = SelectorContainer.withPercents(Data.skillsList)
+        .nameByProperty(EntityDataWrapper<SkillData>::entityNameProperty)
+        .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
+        .get()
         .apply {
             searchDialog.config()
             entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
@@ -464,15 +450,19 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
             fieldsSaver.add { entity ->
                 entity.skillsCouldCast.clear()
-                selectedElementsNodes.forEach { entity.skillsCouldCast.put(it.value.entityData.guid, it.percents.toFloat()) }
+                selectedElementsNodes.forEach {
+                    entity.skillsCouldCast.put(
+                        it.value.entityData.guid,
+                        it.percents.toFloat()
+                    )
+                }
             }
         }
 
-    val skillsMustCast = SelectorContainer.withPercents(
-        Data.skillsList,
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.name })
+    val skillsMustCast = SelectorContainer.withPercents(Data.skillsList)
+        .nameByProperty(EntityDataWrapper<SkillData>::entityNameProperty)
+        .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
+        .get()
         .apply {
             searchDialog.config()
             entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
@@ -481,7 +471,12 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
             fieldsSaver.add { entity ->
                 entity.skillsMustCast.clear()
-                selectedElementsNodes.forEach { entity.skillsMustCast.put(it.value.entityData.guid, it.percents.toFloat()) }
+                selectedElementsNodes.forEach {
+                    entity.skillsMustCast.put(
+                        it.value.entityData.guid,
+                        it.percents.toFloat()
+                    )
+                }
             }
         }
 
@@ -520,11 +515,10 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.isOnBeingActionCastToEnemy
     }
 
-    val summon = SelectorContainer.withPercents(
-        Data.monstersList,
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.name })
+    val summon = SelectorContainer.withPercents(Data.monstersList)
+        .nameByProperty(EntityDataWrapper<MonsterData>::entityNameProperty)
+        .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
+        .get()
         .apply {
             entityData.summon.forEach { add(Data.monstersMap[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) { selected.sorted() }
@@ -534,22 +528,24 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
         }
 
-    val receiveItems = SelectorContainer.withTextField(
-        Data.itemsList,
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.nameInEditor },
-        { w -> w.entityData.name }
-    ).apply {
-        addOption { s -> s.textField.filterInput { t -> t.controlNewText.isInt() } }
-        entityData.receiveItems.forEach { add(Data.itemsMap[it.key]).textField.text = it.value.toString() }
-        changesChecker.add(this) { selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted() }
-        fieldsSaver.add { entity ->
-            entity.receiveItems.clear()
-            selectedElementsNodes.forEach { entity.receiveItems[it.value.entityData.guid] = it.textField.text.toInt() }
+    val receiveItems = SelectorContainer.withTextField(Data.itemsList)
+        .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
+        .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
+        .get().apply {
+            addOption { s -> s.textField.filterInput { t -> t.controlNewText.isInt() } }
+            entityData.receiveItems.forEach { add(Data.itemsMap[it.key]).textField.text = it.value.toString() }
+            changesChecker.add(this) {
+                selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
+            }
+            fieldsSaver.add { entity ->
+                entity.receiveItems.clear()
+                selectedElementsNodes.forEach {
+                    entity.receiveItems[it.value.entityData.guid] = it.textField.text.toInt()
+                }
+            }
         }
-    }
 
-    val buffAttackTypeAtk = SelectorContainer.withPercents(ObservableEnums.ATTACK_TYPES).apply {
+    val buffAttackTypeAtk = SelectorContainer.withPercents(ObservableEnums.ATTACK_TYPES).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.atk()
             ?.attackType()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -562,7 +558,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffAttackTypeDef = SelectorContainer.withPercents(ObservableEnums.ATTACK_TYPES).apply {
+    val buffAttackTypeDef = SelectorContainer.withPercents(ObservableEnums.ATTACK_TYPES).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.def()
             ?.attackType()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -575,7 +571,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffBeingTypeAtk = SelectorContainer.withPercents(ObservableEnums.BEING_TYPES).apply {
+    val buffBeingTypeAtk = SelectorContainer.withPercents(ObservableEnums.BEING_TYPES).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.atk()
             ?.beingType()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -588,7 +584,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffBeingTypeDef = SelectorContainer.withPercents(ObservableEnums.BEING_TYPES).apply {
+    val buffBeingTypeDef = SelectorContainer.withPercents(ObservableEnums.BEING_TYPES).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.def()
             ?.beingType()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -601,7 +597,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffElementAtk = SelectorContainer.withPercents(ObservableEnums.ELEMENTS).apply {
+    val buffElementAtk = SelectorContainer.withPercents(ObservableEnums.ELEMENTS).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.atk()
             ?.element()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -614,7 +610,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffElementDef = SelectorContainer.withPercents(ObservableEnums.ELEMENTS).apply {
+    val buffElementDef = SelectorContainer.withPercents(ObservableEnums.ELEMENTS).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.def()
             ?.element()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -627,7 +623,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffSizeAtk = SelectorContainer.withPercents(ObservableEnums.SIZES).apply {
+    val buffSizeAtk = SelectorContainer.withPercents(ObservableEnums.SIZES).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.atk()
             ?.size()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -640,7 +636,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
     }
 
-    val buffSizeDef = SelectorContainer.withPercents(ObservableEnums.SIZES).apply {
+    val buffSizeDef = SelectorContainer.withPercents(ObservableEnums.SIZES).get().apply {
         setHasSearchButton(false)
         entityData.buffCoefficients?.def()
             ?.size()?.coefficientsMap?.forEach { if (it.value != 1.0) add(it.key).setPercentsAsCoefficient(it.value) }
@@ -694,7 +690,6 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                                     hgap = 5.0
                                     vgap = 5.0
                                     constraintsForColumn(1).maxWidth = 145.0
-                                    isFillWidth = true
                                     row("Name", nameField)
                                     row("Name in editor", nameInEditorField)
                                     row("Main target", mainTarget)
@@ -982,37 +977,15 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 }
             }
         }
-        hbox {
-            alignment = Pos.CENTER_LEFT
-            anchorpaneConstraints {
-                leftAnchor = 160.0
-                topAnchor = 2.0
-            }
-            add(saveButton)
-            add(saveToButton)
-            label(wrapper.insideAsStringProperty) {
-                paddingLeftProperty.set(10.0)
-            }
-        }
+        add(EntityTopMenu(wrapperProperty))
     }
 
-    override fun saveTo(wrapper: EntityDataWrapper<SkillData>): Boolean {
-        val reasonsNotToSave = reasonsNotToSave()
-        if (reasonsNotToSave.isNotEmpty()) {
-            canNotSaveDialog.infoTextLines = reasonsNotToSave
-            canNotSaveDialog.show()
-            return false
-        }
-        fieldsSaver.save()
-        return true
-    }
-
-    fun reasonsNotToSave(): List<String> {
+    override fun reasonsNotToSave(): List<String> {
         val testBeing = Player()
         val skillParser = SkillParser(entityData, testBeing, testBeing)
         val messages: MutableList<String> = ArrayList()
-        if (nameField.text.removeSpaces().isEmpty()) {
-            messages.add("Field NAME is empty")
+        if (nameField.text.removeSpaces().isEmpty() && nameInEditorField.text.removeSpaces().isEmpty()) {
+            messages.add("Either one of the fields NAME or NAME IN EDITOR must not be empty")
         }
         if (damage.text.removeSpaces().isNotEmpty() && !skillParser.testParse(damage.text.toUpperCase())) {
             messages.add("Formula in DAMAGE field is incorrect")

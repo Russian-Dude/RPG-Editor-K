@@ -1,5 +1,8 @@
 package com.rdude.rpgeditork.settings
 
+import com.rdude.rpgeditork.style.StyleTheme
+import javafx.beans.property.SimpleListProperty
+import javafx.beans.property.SimpleObjectProperty
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
@@ -10,7 +13,8 @@ object Settings {
 
     private val properties = Properties().apply { load(FileReader("properties.properties")) }
 
-    var autoSaveModulesWhenEntitySaved = properties.getOrDefault("autosave_modules_on_save", true).toString().toBoolean()
+    var autoSaveModulesWhenEntitySaved =
+        properties.getOrDefault("autosave_modules_on_save", true).toString().toBoolean()
         set(value) {
             storeProperty("autosave_modules_on_save", value.toString())
             field = value
@@ -93,6 +97,16 @@ object Settings {
         set(value) {
             storeProperty("load_image_folder", value.toString())
             field = value
+        }
+
+    val styleThemeProperty = SimpleObjectProperty(
+        StyleTheme.valueOf(properties.getOrDefault("theme", StyleTheme.values().first().name) as String)
+    )
+    var styleTheme: StyleTheme
+        get() = styleThemeProperty.get()
+        set(value) {
+            styleThemeProperty.set(value)
+            storeProperty("theme", value.name)
         }
 
 

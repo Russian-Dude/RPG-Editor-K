@@ -10,7 +10,8 @@ class QuestView(wrapper: EntityDataWrapper<QuestData>) : EntityView<QuestData>(w
 
     }
 
-    override fun saveTo(wrapper: EntityDataWrapper<QuestData>): Boolean {
-        TODO("Not yet implemented")
+    override fun reasonsNotToSave(): List<String> {
+        //TODO("Not yet implemented")
+        return listOf()
     }
 }

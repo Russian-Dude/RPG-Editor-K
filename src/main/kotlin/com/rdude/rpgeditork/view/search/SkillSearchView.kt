@@ -108,7 +108,7 @@ class SkillSearchView : EntitySearchView<SkillData>() {
 
             vbox {
                 text("Elements")
-                val selectorContainer = SelectorContainer.simple(ObservableEnums.ELEMENTS).apply {
+                val selectorContainer = SelectorContainer.simple(ObservableEnums.ELEMENTS).get().apply {
                     setHasSearchButton(false)
                     prefHeight = 80.0
                     searchOptions.put(this) { it.entityData.elements }

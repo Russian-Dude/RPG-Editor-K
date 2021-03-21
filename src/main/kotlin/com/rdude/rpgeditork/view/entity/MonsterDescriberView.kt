@@ -10,7 +10,8 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
 
     }
 
-    override fun saveTo(wrapper: EntityDataWrapper<MonsterData>): Boolean {
-        TODO("Not yet implemented")
+    override fun reasonsNotToSave(): List<String> {
+        //TODO("Not yet implemented")
+        return listOf()
     }
 }

@@ -1,33 +1,21 @@
 package com.rdude.rpgeditork.view
 
-import com.rdude.rpgeditork.AnotherTest
-import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.createNewView
-import com.rdude.rpgeditork.settings.Settings
-import com.rdude.rpgeditork.style.EditorStyles
+import com.rdude.rpgeditork.style.LightTheme
 import com.rdude.rpgeditork.utils.clearTempFolders
 import com.rdude.rpgeditork.utils.limitHeaderArea
-import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.view.entity.EntityView
+import com.rdude.rpgeditork.view.settings.SettingsView
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
-import javafx.application.Platform
 import javafx.collections.FXCollections
-import javafx.collections.MapChangeListener
-import javafx.collections.ObservableList
-import javafx.collections.ObservableMap
 import javafx.geometry.Pos
-import javafx.scene.control.Label
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.image.ImageView
 import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
-import ru.rdude.fxlib.containers.selector.SelectorContainer
-import ru.rdude.rpg.game.logic.data.EntityData
-import ru.rdude.rpg.game.logic.data.SkillData
 import tornadofx.*
-import java.nio.file.Files
 
 class MainView : View() {
 
@@ -62,18 +50,21 @@ class MainView : View() {
                 }
                 alignment = Pos.CENTER
                 button {
-                    addClass(EditorStyles.withoutBorders)
-                    text = "  \uD83D\uDD27  "
+                    addClass(LightTheme.withoutBorders)
+                    text = " 🔧 "
+                    action {
+                        find<SettingsView>().openModal(StageStyle.UNDECORATED)
+                    }
                 }
                 button {
-                    addClass(EditorStyles.withoutBorders)
+                    addClass(LightTheme.withoutBorders)
                     text = "➖"
                     action {
                         currentStage?.isIconified = true
                     }
                 }
                 button {
-                    addClass(EditorStyles.withoutBorders)
+                    addClass(LightTheme.withoutBorders)
                     text = "❌"
                     action {
                         val tabsToRemove = mutableListOf<EntityView<*>>()

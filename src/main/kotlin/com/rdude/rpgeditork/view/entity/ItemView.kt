@@ -10,7 +10,9 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
 
     }
 
-    override fun saveTo(wrapper: EntityDataWrapper<ItemData>): Boolean {
-        TODO("Not yet implemented")
+
+    override fun reasonsNotToSave(): List<String> {
+        //TODO("Not yet implemented")
+        return listOf()
     }
 }

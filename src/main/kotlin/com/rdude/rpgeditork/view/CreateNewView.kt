@@ -2,22 +2,16 @@ package com.rdude.rpgeditork.view
 
 import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.saveload.EntityLoader
-import com.rdude.rpgeditork.settings.Settings
-import com.rdude.rpgeditork.style.EditorStyles
+import com.rdude.rpgeditork.style.LightTheme
 import com.rdude.rpgeditork.utils.InfoDialog
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.loadDialog
 import javafx.geometry.Pos
-import javafx.scene.control.ProgressIndicator
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.text.TextAlignment
 import javafx.stage.FileChooser
 import javafx.stage.Screen
-import ru.rdude.fxlib.containers.selector.SelectorContainer
-import ru.rdude.rpg.game.logic.data.SkillData
 import tornadofx.*
 
 class CreateNewView : Fragment() {
@@ -53,22 +47,22 @@ class CreateNewView : Fragment() {
             hoverProperty().addListener(ChangeListener<Boolean> { _, _, value ->
                 if (value) {
                     unHovered.replaceWith(hovered, ViewTransition.Flip(0.2.seconds, true))
-                    runAsync {
+/*                    runAsync {
                         Thread.sleep(250)
                     } ui {
                         if (!isHover) {
                             hovered.replaceWith(unHovered, ViewTransition.Flip(0.2.seconds, true))
                         }
-                    }
+                    }*/
                 } else {
                     hovered.replaceWith(unHovered, ViewTransition.Flip(0.2.seconds, true))
-                    runAsync {
+/*                    runAsync {
                         Thread.sleep(250)
                     } ui {
                         if (isHover) {
                             unHovered.replaceWith(hovered, ViewTransition.Flip(0.2.seconds, true))
                         }
-                    }
+                    }*/
                 }
             })
         }
@@ -83,7 +77,7 @@ class CreateNewView : Fragment() {
 
         override val root =
             button {
-                style(true) { backgroundColor += EditorStyles.whiteGrey }
+                style(true) { backgroundColor += LightTheme.whiteGrey }
                 text = type.name.capitalize()
                 prefWidth = regionWidth
                 prefHeight = regionHeight
@@ -110,7 +104,7 @@ class CreateNewView : Fragment() {
                 alignment = Pos.CENTER
                 maxWidth = regionWidth
                 button {
-                    style(true) { backgroundColor += EditorStyles.whiteGrey }
+                    style(true) { backgroundColor += LightTheme.whiteGrey }
                     text = "new"
                     maxWidth = maxButtonWidth
                     isFillWidth = true
@@ -124,7 +118,7 @@ class CreateNewView : Fragment() {
                 }
                 if (type.canBeDescriber) {
                     button {
-                        style(true) { backgroundColor += EditorStyles.whiteGrey }
+                        style(true) { backgroundColor += LightTheme.whiteGrey }
                         textAlignment = TextAlignment.CENTER
                         text = "new\r\ndescriber"
                         maxWidth = maxButtonWidth
@@ -141,7 +135,7 @@ class CreateNewView : Fragment() {
                     }
                 }
                 button {
-                    style(true) { backgroundColor += EditorStyles.whiteGrey }
+                    style(true) { backgroundColor += LightTheme.whiteGrey }
                     text = "open"
                     maxWidth = maxButtonWidth
                     isFillWidth = true
@@ -157,7 +151,7 @@ class CreateNewView : Fragment() {
                     }
                 }
                 button {
-                    style(true) { backgroundColor += EditorStyles.whiteGrey }
+                    style(true) { backgroundColor += LightTheme.whiteGrey }
                     text = "load file"
                     maxWidth = maxButtonWidth
                     isFillWidth = true

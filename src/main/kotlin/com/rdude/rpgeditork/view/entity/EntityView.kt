@@ -13,12 +13,11 @@ import javafx.scene.Parent
 import javafx.scene.control.Tab
 import javafx.scene.image.Image
 import ru.rdude.rpg.game.logic.data.EntityData
+import ru.rdude.rpg.game.logic.data.SkillData
 import tornadofx.Fragment
 import tornadofx.onChange
 
 abstract class EntityView<E : EntityData>(entityWrapper: EntityDataWrapper<E>) : Fragment() {
-
-    abstract fun saveTo(wrapper: EntityDataWrapper<E>): Boolean
 
     val wrapperProperty: SimpleObjectProperty<EntityDataWrapper<E>> = SimpleObjectProperty(entityWrapper).apply {
         this.onChange {
@@ -63,4 +62,17 @@ abstract class EntityView<E : EntityData>(entityWrapper: EntityDataWrapper<E>) :
             "Cancel" to { false }
         )
     )
+
+    abstract fun reasonsNotToSave() : List<String>
+
+    fun saveTo(wrapper: EntityDataWrapper<E>): Boolean {
+        val reasonsNotToSave = reasonsNotToSave()
+        if (reasonsNotToSave.isNotEmpty()) {
+            canNotSaveDialog.infoTextLines = reasonsNotToSave
+            canNotSaveDialog.show()
+            return false
+        }
+        fieldsSaver.save()
+        return true
+    }
 }
