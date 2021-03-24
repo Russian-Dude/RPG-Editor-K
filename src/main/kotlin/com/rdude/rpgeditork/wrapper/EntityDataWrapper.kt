@@ -7,6 +7,7 @@ import com.rdude.rpgeditork.view.entity.EntityView
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import ru.rdude.rpg.game.logic.data.*
@@ -31,14 +32,24 @@ data class EntityDataWrapper<E : EntityData>(val entityData: E) : Comparable<Ent
     val entityNameProperty = SimpleStringProperty(entityData.nameInEditor)
 
     val insideAsStringProperty = SimpleStringProperty("Not saved").apply {
+        val moduleNameListener = ChangeListener<String> { _, _, newV -> set("Inside $newV") }
+        var lastModuleNameProperty: SimpleStringProperty? = null
         insideModuleProperty.onChange {
             if (it != null) {
                 set("Inside ${it.entityData.nameInEditor}")
+                lastModuleNameProperty?.removeListener(moduleNameListener)
+                lastModuleNameProperty = it.entityNameProperty
+                lastModuleNameProperty?.addListener(moduleNameListener)
+            }
+            else if (insideModule == null) {
+                set("Not saved")
+                lastModuleNameProperty?.removeListener(moduleNameListener)
             }
         }
         insideFileProperty.onChange {
             if (it != null) {
-                set("Inside ${it.toString()}")
+                set("Inside $it")
+                lastModuleNameProperty?.removeListener(moduleNameListener)
             }
         }
     }

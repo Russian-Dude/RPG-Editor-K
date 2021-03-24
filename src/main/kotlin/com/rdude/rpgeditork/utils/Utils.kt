@@ -10,14 +10,11 @@ import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.layout.*
 import javafx.stage.StageStyle
-import javafx.util.StringConverter
 import ru.rdude.fxlib.dialogs.SearchDialog
 import ru.rdude.rpg.game.logic.data.EntityData
 import ru.rdude.rpg.game.utils.Functions
 import tornadofx.*
 import java.nio.file.Files
-import java.nio.file.Path
-import java.util.function.Function
 
 fun <T : EntityData> T.cloneWithNewGuid(): T {
     val serializer = find<GameJsonSerializerController>().gameJsonSerializer
@@ -59,7 +56,7 @@ fun GridPane.row(text1: String, text2: String) = row {
 
 fun clearTempFolders() {
     Files.list(Settings.tempImagesFolder).forEach { Files.delete(it) }
-    Files.list(Settings.tempPackedImagesFolder).forEach { Files.delete(it) }
+    Files.list(Settings.tempPackedImagesFolder).forEach { it.toFile().deleteRecursively() }
     Files.list(Settings.tempFolder)
         .filter { Files.isDirectory(it) && it.fileName.toString().isLong() }
         .forEach {

@@ -661,7 +661,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         imageHeightRestriction = 64.0
     ).apply {
         imageResourceWrapper = Data.images[entityData.resources.skillIcon?.guid]
-        changesChecker.add(this) { imageResourceWrapper?.guid }
+        changesChecker.add(this, true) { imageResourceWrapper?.guid }
         fieldsSaver.add { it.resources.skillIcon = imageResourceWrapper?.resource }
     }
 

@@ -30,7 +30,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
     implementation("no.tornado:tornadofx:1.7.20")
-    implementation(files("C:\\Java\\MyProjects\\RPG-Editor-K\\RPG-E_jar.jar"))
+    implementation(files("C:\\Java\\MyProjects\\RPG-E\\RPG\\out\\artifacts\\RPG_E_jar\\RPG.jar"))
     implementation(files("C:\\Java\\MyProjects\\FxLib\\jar\\FxExLib.jar"))
 }
 

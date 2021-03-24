@@ -1,13 +1,16 @@
 package com.rdude.rpgeditork.settings
 
 import com.rdude.rpgeditork.style.StyleTheme
+import com.rdude.rpgeditork.utils.getFileOrDefault
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
+import javax.swing.filechooser.FileSystemView
 
 object Settings {
 
@@ -32,7 +35,7 @@ object Settings {
             field = value
         }
 
-    var modulesFolder = Path.of(properties.getOrDefault("modules_folder", "modules\\") as String)
+    var modulesFolder = properties.getFileOrDefault("modules_folder", Path.of("modules\\"))
         set(value) {
             storeProperty("modules_folder", value.toString())
             field = value
@@ -93,7 +96,7 @@ object Settings {
             field = value
         }
 
-    var loadImageFolder = Path.of(properties.getOrDefault("load_image_folder", "\\") as String)
+    var loadImageFolder = properties.getFileOrDefault("load_image_folder")
         set(value) {
             storeProperty("load_image_folder", value.toString())
             field = value

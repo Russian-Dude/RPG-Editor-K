@@ -27,6 +27,7 @@ class EntitySaver : Controller() {
     private val entityPacker = find<EntityPacker>()
     private val modulesDialog = SearchDialog(Data.modulesList).apply {
         searchPane.setTextFieldSearchBy({ it.entityData.nameInEditor })
+        searchPane.setNameBy { w -> w.entityNameProperty.get() }
         initStyle(StageStyle.UNDECORATED)
         this.dialogPane.style { borderColor += box(c("#353B48")) }
     }
@@ -110,6 +111,8 @@ class EntitySaver : Controller() {
 
         // add entity to module
         module.entityData.addEntity(entityToSave.entityData)
+        entityToSave.entityData.resources.imageResources.forEach { module.entityData.resources.addImageResource(it) }
+        entityToSave.entityData.resources.soundResources.forEach { module.entityData.resources.addSoundResource(it) }
 
         // check if any entity inside module has dependency to old version of the entity - ask to swap dependencies
         if (wrapper != entityToSave && module.entityData.hasEntityDependency(wrapper.entityData.guid)) {
@@ -186,7 +189,7 @@ class EntitySaver : Controller() {
             }
             // pack images
             entityToSave.entityData.resources.imageResources
-                .map { Path.of(Settings.tempImagesFolder.toString(), it.guid.toString()) }
+                .map { Path.of(Settings.tempImagesFolder.toString(), it.guid.toString() + ".png") }
                 .toCollection(mutableListOf())
                 .apply {
                     imageAtlasPacker.pack(

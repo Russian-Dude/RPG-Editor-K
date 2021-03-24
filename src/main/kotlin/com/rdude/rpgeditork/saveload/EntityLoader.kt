@@ -8,6 +8,8 @@ import ru.rdude.rpg.game.utils.Functions
 import tornadofx.Controller
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Collectors
+import kotlin.io.path.exists
 
 class EntityLoader : Controller() {
 
@@ -45,6 +47,11 @@ class EntityLoader : Controller() {
             )
             else Settings.tempImagesFolder
 
+        if (Files.notExists(directoryToMoveImages)) {
+            Files.createDirectory(directoryToMoveImages)
+            directoryToMoveImages.toFile().deleteOnExit()
+        }
+
         // move unpacked files and unpack images if needed
         // images
         val imagesDir = Path.of(tempFolder.toString(), "images")
@@ -54,7 +61,9 @@ class EntityLoader : Controller() {
                     if (wrapper.hasPackedImages && it.toString().endsWith(".atlas")) {
                         imageAtlasUnPacker.unpack(it, Settings.tempImagesFolder)
                     }
-                    Files.move(it, Path.of(directoryToMoveImages.toString(), it.fileName.toString()))
+                    val moveTo = Path.of(directoryToMoveImages.toString(), it.fileName.toString())
+                    Files.move(it, moveTo)
+                    moveTo.toFile().deleteOnExit()
                 }
         }
         Files.deleteIfExists(imagesDir)

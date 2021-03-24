@@ -14,24 +14,32 @@ import java.util.stream.Stream
 object Data {
 
     val modulesMap = FXCollections.observableHashMap<Long, EntityDataWrapper<Module>>()
-    val modulesList = FXCollections.observableArrayList<EntityDataWrapper<Module>> { w -> arrayOf(w.entityNameProperty) }
+    val modulesList =
+        FXCollections.observableArrayList<EntityDataWrapper<Module>> { w -> arrayOf(w.entityNameProperty) }
 
     val skillsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<SkillData>>()
-    val skillsList = FXCollections.observableArrayList<EntityDataWrapper<SkillData>> { w -> arrayOf(w.entityNameProperty) }
+    val skillsList = FXCollections.observableArrayList<EntityDataWrapper<SkillData>>
+    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
     val itemsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<ItemData>>()
-    val itemsList = FXCollections.observableArrayList<EntityDataWrapper<ItemData>> { w -> arrayOf(w.entityNameProperty) }
+    val itemsList = FXCollections.observableArrayList<EntityDataWrapper<ItemData>>
+    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
     val monstersMap = FXCollections.observableHashMap<Long, EntityDataWrapper<MonsterData>>()
-    val monstersList = FXCollections.observableArrayList<EntityDataWrapper<MonsterData>> { w -> arrayOf(w.entityNameProperty) }
+    val monstersList = FXCollections.observableArrayList<EntityDataWrapper<MonsterData>>
+    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
     val eventsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<EventData>>()
-    val eventsList = FXCollections.observableArrayList<EntityDataWrapper<EventData>> { w -> arrayOf(w.entityNameProperty) }
+    val eventsList = FXCollections.observableArrayList<EntityDataWrapper<EventData>>
+    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
     val questsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<QuestData>>()
-    val questsList = FXCollections.observableArrayList<EntityDataWrapper<QuestData>> { w -> arrayOf(w.entityNameProperty) }
+    val questsList = FXCollections.observableArrayList<EntityDataWrapper<QuestData>>
+    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
     val images = FXCollections.observableHashMap<Long, ImageResourceWrapper>()
+    val imagesList = FXCollections.observableArrayList<ImageResourceWrapper>
+    { w -> arrayOf(w.nameProperty) }
 
     // TODO: 25.02.2021 sounds should not be images :)
     val sounds = FXCollections.observableHashMap<Long, ResourceWrapper<Image>>()
@@ -42,7 +50,10 @@ object Data {
         modulesMap.addListener(MapChangeListener { change ->
             change.valueAdded.entityData.allEntities
                 .map { EntityDataWrapper(it) }
-                .forEach { t -> t.dataMap.putIfAbsent(t.entityData.guid, t) }
+                .forEach { t ->
+                    t.dataMap.putIfAbsent(t.entityData.guid, t)
+                    t.insideModule = change.valueAdded
+                }
         })
 
         // maps to lists
@@ -75,6 +86,9 @@ object Data {
             questsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+        })
+        images.addListener(MapChangeListener { change ->
+            imagesList.add(change.valueAdded)
         })
 
         // TODO: link sounds

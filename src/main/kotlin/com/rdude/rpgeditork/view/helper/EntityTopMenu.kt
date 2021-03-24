@@ -45,7 +45,7 @@ class EntityTopMenu<E : EntityData>(
         styleClass.add("entity-top-menu")
         alignment = Pos.CENTER_LEFT
         anchorpaneConstraints {
-            leftAnchor = if (wrapper.entityData is Module) 135.0 else if (wrapper.entityData.isDescriber) 60.0 else 160.0
+            leftAnchor = if (wrapper.entityData is Module) 165.0 else if (wrapper.entityData.isDescriber) 60.0 else 160.0
             topAnchor = 1.0
         }
         add(saveButton)
