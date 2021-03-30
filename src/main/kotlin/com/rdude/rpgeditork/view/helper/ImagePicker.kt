@@ -2,14 +2,13 @@ package com.rdude.rpgeditork.view.helper
 
 import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.settings.Settings
-import com.rdude.rpgeditork.utils.InfoDialog
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.ListChangeListener
 import javafx.geometry.Pos
 import javafx.scene.image.Image
-import javafx.scene.text.TextAlignment
 import javafx.stage.FileChooser
 import ru.rdude.rpg.game.logic.data.resources.Resource
 import ru.rdude.rpg.game.utils.Functions
@@ -33,13 +32,22 @@ class ImagePicker(
             if (value != null) {
                 nameProperty.unbind()
                 nameProperty.bind(value.nameProperty)
-            }
-            else {
+            } else {
                 nameProperty.unbind()
                 nameProperty.set("No image")
             }
             field = value
         }
+
+    init {
+        Data.imagesList.onChange {
+            while (it.next()) {
+                if (it.wasRemoved() && imageResourceWrapper != null && it.removed.contains(imageResourceWrapper)) {
+                    imageResourceWrapper = null
+                }
+            }
+        }
+    }
 
 
     override val root = borderpane {
@@ -88,10 +96,10 @@ class ImagePicker(
                         val imageRes = ImageResourceWrapper(Resource(file[0].name.replace(".png", ""), guid))
                         imageRes.file.toFile().deleteOnExit()
                         if ((imageWidthRestriction != null && imageRes.fxRepresentation.width != imageWidthRestriction)
-                            || imageHeightRestriction != null && imageRes.fxRepresentation.height != imageHeightRestriction) {
+                            || imageHeightRestriction != null && imageRes.fxRepresentation.height != imageHeightRestriction
+                        ) {
                             Dialogs.wrongSizeDialog(imageWidthRestriction!!, imageHeightRestriction!!).show()
-                        }
-                        else {
+                        } else {
                             imageResourceWrapper = imageRes
                             if (imageResourceWrapper != null) {
                                 Data.images[imageResourceWrapper!!.guid] = imageResourceWrapper

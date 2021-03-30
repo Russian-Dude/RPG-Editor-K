@@ -8,8 +8,13 @@ import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import javafx.scene.image.Image
+import javafx.stage.StageStyle
+import ru.rdude.fxlib.dialogs.SearchDialog
 import ru.rdude.rpg.game.logic.data.*
 import ru.rdude.rpg.game.utils.Functions
+import tornadofx.box
+import tornadofx.c
+import tornadofx.style
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -37,6 +42,28 @@ data class EntityDataType<E : EntityData>(
     var saveLoadPath
         set(value) = saveLoadPathSet.invoke(value)
         get() = saveLoadPathGet.invoke()
+
+    val defaultSearchDialog: SearchDialog<EntityDataWrapper<E>> = SearchDialog(dataList)
+        .apply { configSearchDialog(this) }
+
+    fun configSearchDialog(dialog: SearchDialog<EntityDataWrapper<E>>) {
+        with(dialog) {
+            initStyle(StageStyle.UNDECORATED)
+            dialogPane.style {
+                backgroundColor += c("#F5F6FA")
+                borderColor += box(c("#353B48"))
+            }
+            with(searchPane) {
+                setNameBy { it.entityNameProperty.get() }
+                setTextFieldSearchBy( { it.entityNameProperty.get() }, { it.entityData.name } )
+                val searchView = newSearchView()
+                headerText = "Select $name"
+                addExtraSearchNode(searchView.root)
+                setSearchOptions(searchView.searchOptions)
+                searchView.configPopup(dialog)
+            }
+        }
+    }
 
     fun newView(wrapper: EntityDataWrapper<E>): EntityView<E> {
         val view = newViewFunc.invoke(wrapper)
@@ -81,15 +108,7 @@ fun entityDataTypeOf(name: String) = when (name.toLowerCase()) {
     else -> null
 }
 
-inline fun <reified E : EntityData> entityDataTypeOf(): EntityDataType<E> = when (E::class.java) {
-    Module::class.java -> MODULE as EntityDataType<E>
-    SkillData::class.java -> SKILL as EntityDataType<E>
-    ItemData::class.java -> ITEM as EntityDataType<E>
-    MonsterData::class.java -> MONSTER as EntityDataType<E>
-    EventData::class.java -> EVENT as EntityDataType<E>
-    QuestData::class.java -> QUEST as EntityDataType<E>
-    else -> throw IllegalArgumentException("Wrapper for  ${E::class.java} not implemented")
-}
+inline fun <reified E : EntityData> entityDataTypeOf(): EntityDataType<E> = entityDataTypeOf(E::class.java)
 
 fun <E : EntityData> entityDataTypeOf(entityData: E) = when (entityData) {
     is Module -> MODULE as EntityDataType<E>
@@ -99,6 +118,16 @@ fun <E : EntityData> entityDataTypeOf(entityData: E) = when (entityData) {
     is EventData -> EVENT as EntityDataType<E>
     is QuestData -> QUEST as EntityDataType<E>
     else -> throw IllegalArgumentException("Wrapper for  ${entityData::class.java} not implemented")
+}
+
+fun <E : EntityData> entityDataTypeOf(cl : Class<E>) = when (cl) {
+    Module::class.java -> MODULE as EntityDataType<E>
+    SkillData::class.java -> SKILL as EntityDataType<E>
+    ItemData::class.java -> ITEM as EntityDataType<E>
+    MonsterData::class.java -> MONSTER as EntityDataType<E>
+    EventData::class.java -> EVENT as EntityDataType<E>
+    QuestData::class.java -> QUEST as EntityDataType<E>
+    else -> throw IllegalArgumentException("Wrapper for  $cl not implemented")
 }
 
 val MODULE = EntityDataType(

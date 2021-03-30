@@ -1,11 +1,7 @@
 package com.rdude.rpgeditork.view.entity
 
 import com.rdude.rpgeditork.data.Data
-import com.rdude.rpgeditork.enums.FormulaVariable
-import com.rdude.rpgeditork.enums.NullableSize
-import com.rdude.rpgeditork.enums.ObservableEnums
-import com.rdude.rpgeditork.enums.nullableVersion
-import com.rdude.rpgeditork.style.LightTheme
+import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.utils.*
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.view.helper.ImagePicker
@@ -13,7 +9,6 @@ import com.rdude.rpgeditork.view.helper.SkillsOnBeingActionSelectorElement
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.HPos
 import javafx.geometry.Pos
-import javafx.geometry.Side
 import javafx.scene.control.*
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.text.Font
@@ -406,7 +401,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
         .apply {
-            searchDialog.config()
+            ITEM.configSearchDialog(searchDialog)
             addOption { e ->
                 e.textField.filterInput {
                     it.controlNewText.isInt() && it.controlNewText.toInt().isPositive()
@@ -443,7 +438,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
         .apply {
-            searchDialog.config()
+            SKILL.configSearchDialog(searchDialog)
             entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
@@ -464,7 +459,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
         .apply {
-            searchDialog.config()
+            SKILL.configSearchDialog(searchDialog)
             entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
@@ -663,6 +658,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         imageResourceWrapper = Data.images[entityData.resources.skillIcon?.guid]
         changesChecker.add(this, true) { imageResourceWrapper?.guid }
         fieldsSaver.add { it.resources.skillIcon = imageResourceWrapper?.resource }
+        imagePickers.add(this)
     }
 
 

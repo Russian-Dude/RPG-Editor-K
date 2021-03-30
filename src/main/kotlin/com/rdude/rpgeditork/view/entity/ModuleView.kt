@@ -2,6 +2,13 @@ package com.rdude.rpgeditork.view.entity
 
 import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.enums.*
+import com.rdude.rpgeditork.saveload.EntityLoader
+import com.rdude.rpgeditork.saveload.EntitySaver
+import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.utils.dialogs.Dialogs
+import com.rdude.rpgeditork.utils.dialogs.InfoDialog
+import com.rdude.rpgeditork.utils.dialogs.ShowImageDialog
+import com.rdude.rpgeditork.utils.dialogs.SimpleDialog
 import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.view.MainView
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
@@ -11,12 +18,18 @@ import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
+import javafx.scene.image.Image
 import javafx.scene.layout.Priority
+import javafx.stage.FileChooser
 import ru.rdude.fxlib.panes.SearchPane
 import ru.rdude.rpg.game.logic.data.EntityData
 import ru.rdude.rpg.game.logic.data.Module
+import ru.rdude.rpg.game.logic.data.resources.Resource
+import ru.rdude.rpg.game.utils.Functions
 import tornadofx.*
-import tornadofx.Stylesheet.Companion.contextMenu
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.function.Predicate
 
 class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrapper) {
 
@@ -99,10 +112,37 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                 button(" Load from file ") {
                     hgrow = Priority.ALWAYS
                     maxWidth = Double.MAX_VALUE
+                    action {
+                        val files = chooseFile(
+                            title = "Open ${type.name}",
+                            filters = arrayOf(FileChooser.ExtensionFilter(type.name, "*.${type.name}")),
+                            initialDirectory = type.saveLoadPath.toFile(),
+                            mode = FileChooserMode.Single
+                        )
+                        if (files.isEmpty()) {
+                            return@action
+                        }
+                        val file = files[0].toPath()
+                        type.saveLoadPath = file.parent
+                        loadDialog("Loading ${type.name}...") {
+                            val wrapper = find<EntityLoader>().loadFromFile(file)
+                            if (wrapper == null) {
+                                InfoDialog("Failed to load ${type.name}", image = Image("icons\\warning.png")).show()
+                            } else {
+                                find<EntitySaver>().saveToModule(wrapper, moduleView.wrapper)
+                            }
+                        }
+                    }
                 }
                 button("Copy from module") {
                     hgrow = Priority.ALWAYS
                     maxWidth = Double.MAX_VALUE
+                    action {
+                        val wrapper = type.defaultSearchDialog.showAndWait()
+                        if (!wrapper.isEmpty) {
+                            find<EntitySaver>().saveToModule(wrapper.get(), moduleView.wrapper)
+                        }
+                    }
                 }
             }
             add(SearchPane(FilteredList(type.dataList) { w -> w.insideModule == moduleView.wrapper }).apply {
@@ -118,11 +158,16 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     it.insideModule = null
                     it.wasChanged = true
                 }
+                moduleView.changesChecker.add(this) { this.listView.items.sorted() }
             })
         }
     }
 
     class ImagesList(private val moduleView: ModuleView) : Fragment() {
+
+        private val predicate =
+            Predicate<ImageResourceWrapper> { w -> moduleView.entityData.resources.imageResources.contains(w.resource) }
+        private val filteredList = FilteredList(Data.imagesList, predicate)
 
         override val root = vbox {
             paddingAll = 10.0
@@ -133,18 +178,98 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                 button(" Load from file ") {
                     hgrow = Priority.ALWAYS
                     maxWidth = Double.MAX_VALUE
+                    action {
+                        loadImageFromFile()
+                    }
                 }
                 button("Copy from module") {
                     hgrow = Priority.ALWAYS
                     maxWidth = Double.MAX_VALUE
+                    action {
+                        val wrapper = Dialogs.imageSearchDialog {
+                            !moduleView.wrapper.entityData.resources.imageResources.contains(it.resource)
+                        }
+                            .orElse(null)?.copy() ?: return@action
+                        moduleView.wrapper.entityData.resources.addImageResource(wrapper.resource)
+                        Data.images[wrapper.guid] = wrapper
+                    }
                 }
             }
-            add(SearchPane(FilteredList(Data.imagesList)
-            { w -> moduleView.entityData.resources.imageResources.contains(w.resource) }).apply {
+            add(SearchPane(filteredList).apply {
                 setNameBy { w -> w.nameProperty.get() }
                 setTextFieldSearchBy({ w -> w.nameProperty.get() })
                 setIcon { w -> w.fxRepresentation }
+                addContextMenuItem("Show") {
+                    Dialogs.showImageDialog(it)
+                }
+
+                addContextMenuItem("Rename") {
+                    Dialogs.renameDialog(it.nameProperty)
+                }
+                addContextMenu("Replace") { replace ->
+                    replace.menuItem("With image from file") {
+                        val wrapper = loadImageFromFile() ?: return@menuItem
+                        moduleView.entityData.resources.remove(it.resource)
+                        Data.allEntities.forEach { w ->
+                            w.mainView?.imagePickers?.forEach { picker -> picker.imageResourceWrapper = wrapper }
+                            w.entityData.resources.swapImage(it.resource, wrapper.resource)
+                        }
+                        Data.images.remove(it.guid)
+                    }
+                    replace.menuItem("With image from data") {
+                        val wrapper = Dialogs.imageSearchDialog().orElse(null) ?: return@menuItem
+                        if (wrapper == it) return@menuItem
+                        moduleView.entityData.resources.remove(it.resource)
+                        Data.allEntities.forEach { w ->
+                            w.mainView?.imagePickers?.forEach { picker -> picker.imageResourceWrapper = wrapper }
+                            w.entityData.resources.swapImage(it.resource, wrapper.resource)
+                        }
+                        Data.images.remove(it.guid)
+                    }
+                }
+
+                addContextMenuItem("Remove") {
+                    val used = Data.allEntities
+                        .filter { w -> w.entityData.resources.imageResources.contains(it.resource) }
+                    if (used.isNotEmpty()) {
+                        val usedAsString = used
+                            .take(3)
+                            .map { w -> w.entityNameProperty.get() }
+                            .reduce { a, b -> "$a, $b" }
+                        val andAmount = if (used.size <= 3) "" else " and ${used.size - 3} more entities"
+                        val question = "This image is used by $usedAsString$andAmount.\r\nRemove it anyway?"
+                        if (!Dialogs.confirmationDialog(question)) {
+                            return@addContextMenuItem
+                        }
+                    }
+                    moduleView.wrapper.entityData.resources.imageResources.remove(it.resource)
+                    Data.images.remove(it.resource.guid)
+                }
+                moduleView.changesChecker.add(this, true) {
+                    listView.items.sorted() to listView.items.map { it.name }.sorted()
+                }
             })
+        }
+
+        private fun loadImageFromFile(): ImageResourceWrapper? {
+            val file = chooseFile(
+                filters = arrayOf(FileChooser.ExtensionFilter("image", "*.png")),
+                mode = FileChooserMode.Single,
+                title = "Load image",
+                initialDirectory = Settings.loadImageFolder.toFile()
+            )
+            if (file.isEmpty()) {
+                return null
+            }
+            Settings.loadImageFolder = file[0].parentFile.toPath()
+            val guid = Functions.generateGuid()
+            Files.copy(file[0].toPath(), Path.of(Settings.tempImagesFolder.toString(), "$guid.png"))
+            val imageResourceWrapper = ImageResourceWrapper(Resource(file[0].name.replace(".png", ""), guid))
+            imageResourceWrapper.file.toFile().deleteOnExit()
+            moduleView.wrapper.imagesWereChanged = true
+            moduleView.entityData.resources.addImageResource(imageResourceWrapper.resource)
+            Data.images[imageResourceWrapper.guid] = imageResourceWrapper
+            return imageResourceWrapper
         }
     }
 }

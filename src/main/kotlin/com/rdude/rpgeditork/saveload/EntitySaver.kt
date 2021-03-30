@@ -4,33 +4,26 @@ import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.enums.MODULE
 import com.rdude.rpgeditork.enums.hasPackedImages
 import com.rdude.rpgeditork.settings.Settings
-import com.rdude.rpgeditork.utils.SimpleDialog
+import com.rdude.rpgeditork.utils.dialogs.SimpleDialog
 import com.rdude.rpgeditork.utils.cloneWithNewGuid
 import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import javafx.stage.FileChooser
-import javafx.stage.StageStyle
-import ru.rdude.fxlib.dialogs.SearchDialog
 import ru.rdude.rpg.game.logic.data.EntityData
 import ru.rdude.rpg.game.logic.data.Module
-import tornadofx.*
+import tornadofx.Controller
+import tornadofx.FileChooserMode
+import tornadofx.chooseFile
 import java.nio.file.Files
 import java.nio.file.Path
 
 class EntitySaver : Controller() {
 
-    private enum class Destination { MODULE, FILE, CANCEL }
-
     private val imageAtlasPacker = find<ImageAtlasPacker>()
     private val entityPacker = find<EntityPacker>()
-    private val modulesDialog = SearchDialog(Data.modulesList).apply {
-        searchPane.setTextFieldSearchBy({ it.entityData.nameInEditor })
-        searchPane.setNameBy { w -> w.entityNameProperty.get() }
-        initStyle(StageStyle.UNDECORATED)
-        this.dialogPane.style { borderColor += box(c("#353B48")) }
-    }
+    private val modulesDialog = MODULE.defaultSearchDialog
 
     fun <E : EntityData> save(wrapper: EntityDataWrapper<E>): Boolean {
         val insideFile = wrapper.insideFile

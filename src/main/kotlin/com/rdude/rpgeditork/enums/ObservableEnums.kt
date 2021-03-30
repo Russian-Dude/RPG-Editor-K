@@ -10,6 +10,7 @@ import tornadofx.observable
 
 object ObservableEnums {
     val ATTACK_TYPES: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList())
+    val ATTACK_WITHOUT_WEAPON_TYPE: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList().filter { at -> at != AttackType.WEAPON_TYPE })
     val ATTACK_TYPES_NULLABLE: ObservableList<AttackType?> = FXCollections.observableArrayList(AttackType.values().asList()).apply { add(null) }
     val SKILL_TYPES: ObservableList<SkillType> = FXCollections.observableArrayList(SkillType.values().asList())
     val SKILL_TYPES_NULLABLE: ObservableList<SkillType?> = FXCollections.observableArrayList(SkillType.values().asList()).apply { add(null) }
@@ -26,4 +27,7 @@ object ObservableEnums {
     val STAT_NAMES: ObservableList<StatName> = StatName.values().toMutableList().asObservable()
     val FORMULA_VARIABLES: ObservableList<FormulaVariable> = FormulaVariable.values().toMutableList().asObservable()
     val BEING_ACTIONS: ObservableList<BeingAction.Action> = BeingAction.Action.values().toMutableList().asObservable()
+    val ITEM_MAIN_TYPES: ObservableList<ItemMainType> = ItemMainType.values().toMutableList().asObservable()
+    val ITEM_TYPES: ObservableList<ItemType> = ItemType.values().toMutableList().asObservable()
+    val ITEM_RARITY: ObservableList<ItemRarity> = ItemRarity.values().toMutableList().asObservable()
 }

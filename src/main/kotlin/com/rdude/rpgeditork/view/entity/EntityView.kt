@@ -1,19 +1,16 @@
 package com.rdude.rpgeditork.view.entity
 
-import com.rdude.rpgeditork.enums.entityTypeName
 import com.rdude.rpgeditork.saveload.EntitySaver
 import com.rdude.rpgeditork.utils.ChangesChecker
-import com.rdude.rpgeditork.utils.InfoDialog
-import com.rdude.rpgeditork.utils.SimpleDialog
+import com.rdude.rpgeditork.utils.dialogs.InfoDialog
+import com.rdude.rpgeditork.utils.dialogs.SimpleDialog
 import com.rdude.rpgeditork.utils.ViewFieldsSaver
+import com.rdude.rpgeditork.view.helper.ImagePicker
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.Parent
-import javafx.scene.control.Tab
 import javafx.scene.image.Image
 import ru.rdude.rpg.game.logic.data.EntityData
-import ru.rdude.rpg.game.logic.data.SkillData
 import tornadofx.Fragment
 import tornadofx.onChange
 
@@ -48,6 +45,8 @@ abstract class EntityView<E : EntityData>(entityWrapper: EntityDataWrapper<E>) :
     }
 
     val changesChecker = ChangesChecker()
+
+    val imagePickers: MutableList<ImagePicker> = ArrayList()
 
     val canNotSaveDialog = InfoDialog("Can not save ${name.get()} because of:", image = Image("icons\\warning.png"))
 

@@ -51,9 +51,11 @@ class EntityTopMenu<E : EntityData>(
         add(saveButton)
         add(saveToButton)
         label(wrapper.insideAsStringProperty) {
+            isDisable = true
             paddingLeftProperty.set(25.0)
         }
         label("Has ${wrapper.dependencies.size} dependencies") {
+            isDisable = true
             paddingLeftProperty.set(25.0)
             wrapper.dependencies.sizeProperty.stringBinding(this.textProperty()) { i -> "Has $i dependencies" }
         }

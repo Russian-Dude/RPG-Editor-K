@@ -7,42 +7,48 @@ import com.rdude.rpgeditork.wrapper.ResourceWrapper
 import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.MapChangeListener
+import javafx.collections.ObservableList
+import javafx.collections.ObservableMap
 import javafx.scene.image.Image
 import ru.rdude.rpg.game.logic.data.*
 import java.util.stream.Stream
 
 object Data {
 
-    val modulesMap = FXCollections.observableHashMap<Long, EntityDataWrapper<Module>>()
-    val modulesList =
-        FXCollections.observableArrayList<EntityDataWrapper<Module>> { w -> arrayOf(w.entityNameProperty) }
+    val modulesMap: ObservableMap<Long, EntityDataWrapper<Module>> = FXCollections.observableHashMap()
+    val modulesList: ObservableList<EntityDataWrapper<Module>> =
+        FXCollections.observableArrayList { w -> arrayOf(w.entityNameProperty) }
 
-    val skillsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<SkillData>>()
-    val skillsList = FXCollections.observableArrayList<EntityDataWrapper<SkillData>>
+    val skillsMap: ObservableMap<Long, EntityDataWrapper<SkillData>> = FXCollections.observableHashMap()
+    val skillsList: ObservableList<EntityDataWrapper<SkillData>> = FXCollections.observableArrayList()
     { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
-    val itemsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<ItemData>>()
-    val itemsList = FXCollections.observableArrayList<EntityDataWrapper<ItemData>>
+    val itemsMap: ObservableMap<Long, EntityDataWrapper<ItemData>> = FXCollections.observableHashMap()
+    val itemsList: ObservableList<EntityDataWrapper<ItemData>> = FXCollections.observableArrayList()
     { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
-    val monstersMap = FXCollections.observableHashMap<Long, EntityDataWrapper<MonsterData>>()
-    val monstersList = FXCollections.observableArrayList<EntityDataWrapper<MonsterData>>
+    val monstersMap: ObservableMap<Long, EntityDataWrapper<MonsterData>> = FXCollections.observableHashMap()
+    val monstersList: ObservableList<EntityDataWrapper<MonsterData>> = FXCollections.observableArrayList()
     { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
-    val eventsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<EventData>>()
-    val eventsList = FXCollections.observableArrayList<EntityDataWrapper<EventData>>
+    val eventsMap: ObservableMap<Long, EntityDataWrapper<EventData>> = FXCollections.observableHashMap()
+    val eventsList: ObservableList<EntityDataWrapper<EventData>> = FXCollections.observableArrayList()
     { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
-    val questsMap = FXCollections.observableHashMap<Long, EntityDataWrapper<QuestData>>()
-    val questsList = FXCollections.observableArrayList<EntityDataWrapper<QuestData>>
+    val questsMap: ObservableMap<Long, EntityDataWrapper<QuestData>> = FXCollections.observableHashMap()
+    val questsList: ObservableList<EntityDataWrapper<QuestData>> = FXCollections.observableArrayList()
     { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
 
-    val images = FXCollections.observableHashMap<Long, ImageResourceWrapper>()
-    val imagesList = FXCollections.observableArrayList<ImageResourceWrapper>
+    val allEntities: List<EntityDataWrapper<*>>
+        get() = listOf(skillsList, itemsList, monstersList, eventsList, questsList)
+            .flatten()
+
+    val images: ObservableMap<Long, ImageResourceWrapper> = FXCollections.observableHashMap()
+    val imagesList: ObservableList<ImageResourceWrapper> = FXCollections.observableArrayList()
     { w -> arrayOf(w.nameProperty) }
 
     // TODO: 25.02.2021 sounds should not be images :)
-    val sounds = FXCollections.observableHashMap<Long, ResourceWrapper<Image>>()
+    val sounds: ObservableMap<Long, ResourceWrapper<Image>> = FXCollections.observableHashMap()
 
 
     init {
@@ -88,7 +94,12 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
         })
         images.addListener(MapChangeListener { change ->
-            imagesList.add(change.valueAdded)
+            if (change.wasAdded()) {
+                imagesList.add(change.valueAdded)
+            }
+            else if (change.wasRemoved()) {
+                imagesList.remove(change.valueRemoved)
+            }
         })
 
         // TODO: link sounds

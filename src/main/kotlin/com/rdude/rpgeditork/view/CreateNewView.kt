@@ -3,8 +3,7 @@ package com.rdude.rpgeditork.view
 import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.saveload.EntityLoader
 import com.rdude.rpgeditork.style.LightTheme
-import com.rdude.rpgeditork.utils.InfoDialog
-import com.rdude.rpgeditork.utils.dialogs.Dialogs
+import com.rdude.rpgeditork.utils.dialogs.InfoDialog
 import com.rdude.rpgeditork.utils.loadDialog
 import javafx.geometry.Pos
 import javafx.scene.image.Image
@@ -12,6 +11,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.text.TextAlignment
 import javafx.stage.FileChooser
 import javafx.stage.Screen
+import ru.rdude.rpg.game.logic.data.EntityData
 import tornadofx.*
 
 class CreateNewView : Fragment() {
@@ -30,8 +30,8 @@ class CreateNewView : Fragment() {
         add(CreationButton(QUEST, buttonPrefWidth, buttonPrefHeight))
     }
 
-    class CreationButton(
-        type: EntityDataType<*>,
+    class CreationButton<E : EntityData>(
+        type: EntityDataType<E>,
         private val buttonWidth: Double,
         private val buttonHeight: Double
     ) : Fragment() {
@@ -69,8 +69,8 @@ class CreateNewView : Fragment() {
 
     }
 
-    class UnHovered(
-        private val type: EntityDataType<*>,
+    class UnHovered<E : EntityData>(
+        private val type: EntityDataType<E>,
         private val regionWidth: Double,
         private val regionHeight: Double,
     ) : Fragment() {
@@ -85,8 +85,8 @@ class CreateNewView : Fragment() {
 
     }
 
-    class Hovered(
-        private val type: EntityDataType<*>,
+    class Hovered<E : EntityData>(
+        private val type: EntityDataType<E>,
         private val regionWidth: Double,
         private val regionHeight: Double,
     ) : Fragment() {
@@ -142,7 +142,7 @@ class CreateNewView : Fragment() {
                     prefHeight = regionHeight * 0.5
                     hgrow = Priority.ALWAYS
                     action {
-                        val wrapper = Dialogs.skillsSearchDialog.showAndWait()
+                        val wrapper = type.defaultSearchDialog.showAndWait()
                         if (wrapper.isPresent) {
                             loadDialog("Loading ${type.name}...") {
                                 find<MainView>().openEntity(wrapper.get())

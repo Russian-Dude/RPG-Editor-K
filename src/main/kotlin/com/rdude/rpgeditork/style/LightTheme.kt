@@ -18,6 +18,7 @@ class LightTheme : Stylesheet() {
         val fxexSelectorContainerRemoveButton by cssclass()
         val fxexSelectorContainerSearchButton by cssclass()
         val entityTopMenu by cssclass()
+        val editorDialog by cssclass()
 
         val lightBlue = c("#00A8FF")
         val blue = c("#0097E6")
@@ -86,6 +87,9 @@ class LightTheme : Stylesheet() {
             backgroundRadius += box(0.0.px)
             borderRadius += box(0.0.px)
             backgroundColor += transparent
+            and(disabled) {
+                textFill = darkGrey
+            }
         }
 
         tabPane {
@@ -207,9 +211,11 @@ class LightTheme : Stylesheet() {
                 borderWidth += box(0.0.px)
                 borderColor += box(transparent)
             }
-            label {
-                textFill = darkGrey
-            }
+        }
+
+        editorDialog {
+            backgroundColor += c("#F5F6FA")
+            borderColor += box(c("#353B48"))
         }
 
 

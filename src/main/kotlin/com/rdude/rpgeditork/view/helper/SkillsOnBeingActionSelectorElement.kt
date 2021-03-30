@@ -2,6 +2,7 @@ package com.rdude.rpgeditork.view.helper
 
 import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.enums.ObservableEnums
+import com.rdude.rpgeditork.enums.SKILL
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.application.Platform
@@ -44,7 +45,7 @@ class SkillsOnBeingActionSelectorElement : GridPane(), SelectorElementNode<Being
 
     val skillSearchButton = Button("\uD83D\uDD0E").apply {
         action {
-            Dialogs.skillsSearchDialog.showAndWait().ifPresent { skillsComboBox.value = it }
+            SKILL.defaultSearchDialog.showAndWait().ifPresent { skillsComboBox.value = it }
         }
         maxWidth = Double.MAX_VALUE
         columnConstraints.add(ColumnConstraints().apply {
