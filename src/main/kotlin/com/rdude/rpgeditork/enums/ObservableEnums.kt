@@ -24,6 +24,7 @@ object ObservableEnums {
     val SKILL_EFFECTS_NULLABLE: ObservableList<SkillEffect?> = SkillEffect.values().toMutableList<SkillEffect?>().asObservable().apply { add(null) }
     val SKILL_OVERLAY: ObservableList<SkillOverlay> = SkillOverlay.values().toMutableList().asObservable()
     val BUFF_TYPES: ObservableList<BuffType> = BuffType.values().toMutableList().asObservable()
+    val BUFF_TYPES_NULLABLE: ObservableList<BuffType?> = BuffType.values().toMutableList<BuffType?>().asObservable().apply { add(null) }
     val STAT_NAMES: ObservableList<StatName> = StatName.values().toMutableList().asObservable()
     val FORMULA_VARIABLES: ObservableList<FormulaVariable> = FormulaVariable.values().toMutableList().asObservable()
     val BEING_ACTIONS: ObservableList<BeingAction.Action> = BeingAction.Action.values().toMutableList().asObservable()

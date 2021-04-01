@@ -329,7 +329,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
 
     val stats: SelectorContainer<StatName, SelectorElementAutocompletionTextField<StatName, FormulaVariable>> =
         SelectorContainer.withAutocompletionTextField(ObservableEnums.STAT_NAMES, ObservableEnums.FORMULA_VARIABLES)
-            .nameBy(StatName::getVariableName)
+            .nameBy(StatName::getName)
             .textFieldNameBy(FormulaVariable::variable)
             .textFieldDescription(FormulaVariable::description)
             .textFieldType(AutocompletionTextField.Type.WORDS)
@@ -378,23 +378,28 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.transformation.isOverride
     }
 
-    val statsRequirements = SelectorContainer.withTextField(ObservableEnums.STAT_NAMES).get().apply {
-        setHasSearchButton(false)
-        addOption { e -> e.textField.filterInput { it.controlNewText.isInt() } }
-        addOption { e -> e.setSizePercentages(75.0, 25.0) }
-        entityData.requirements.stats.forEachWithNestedStats {
-            if (it.value() != 0.0) {
-                add(StatName.get(it.javaClass)).textField.text = it.value().toInt().toString()
+    val statsRequirements = SelectorContainer.withTextField(ObservableEnums.STAT_NAMES)
+        .nameBy(StatName::getName)
+        .searchBy({ s -> s.variableName }, { s -> s.getName() })
+        .get().apply {
+            setHasSearchButton(false)
+            addOption { e -> e.textField.filterInput { it.controlNewText.isInt() } }
+            addOption { e -> e.setSizePercentages(75.0, 25.0) }
+            entityData.requirements.stats.forEachWithNestedStats {
+                if (it.value() != 0.0) {
+                    add(StatName.get(it.javaClass)).textField.text = it.value().toInt().toString()
+                }
+            }
+            changesChecker.add(this) {
+                selected.sorted() to selectedElementsNodes.map { e -> e.textField.text }.sorted()
+            }
+            fieldsSaver.add { entity ->
+                entity.requirements.stats.forEachWithNestedStats { it.set(0.0) }
+                selectedElementsNodes.forEach {
+                    entity.requirements.stats.get(it.value.clazz).set(it.textField.text.toDouble())
+                }
             }
         }
-        changesChecker.add(this) { selected.sorted() to selectedElementsNodes.map { e -> e.textField.text }.sorted() }
-        fieldsSaver.add { entity ->
-            entity.requirements.stats.forEachWithNestedStats { it.set(0.0) }
-            selectedElementsNodes.forEach {
-                entity.requirements.stats.get(it.value.clazz).set(it.textField.text.toDouble())
-            }
-        }
-    }
 
     val itemsRequirements = SelectorContainer.withTextField(Data.itemsList)
         .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
@@ -958,6 +963,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
             tab("Visual and sound") {
                 hbox {
+                    paddingAll = 10.0
                     vbox {
                         spacing = 5.0
                         alignment = Pos.TOP_CENTER
@@ -967,7 +973,12 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                         hbox {
                             spacing = 5.0
                             add(skillIcon)
-                            add(description)
+                            vbox {
+                                spacing = 5.0
+                                alignment = Pos.TOP_CENTER
+                                text("Description")
+                                add(description)
+                            }
                         }
                     }
                 }

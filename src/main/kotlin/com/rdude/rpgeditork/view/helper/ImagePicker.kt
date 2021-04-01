@@ -111,7 +111,15 @@ class ImagePicker(
                     maxWidth = Double.MAX_VALUE
                     text = "Load from resources"
                     action {
-                        //TODO("load from search dialog")
+                        var wrapper: ImageResourceWrapper? = null
+                        wrapper = if (imageWidthRestriction != null && imageHeightRestriction != null) {
+                            Dialogs.imageSearchDialog(imageWidthRestriction to imageHeightRestriction).orElse(null)
+                        } else {
+                            Dialogs.imageSearchDialog().orElse(null)
+                        }
+                        if (wrapper != null) {
+                            imageResourceWrapper = wrapper
+                        }
                     }
                 }
             }

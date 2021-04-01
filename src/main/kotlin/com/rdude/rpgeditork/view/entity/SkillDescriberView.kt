@@ -3,6 +3,7 @@ package com.rdude.rpgeditork.view.entity
 import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.utils.removeSpaces
 import com.rdude.rpgeditork.utils.row
+import com.rdude.rpgeditork.utils.setNullToStringConverter
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.Pos
@@ -49,14 +50,16 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
         }
     }
 
-    val attackType = ComboBox(ObservableEnums.ATTACK_TYPES).apply {
-        value = entityData.attackType ?: AttackType.MELEE
+    val attackType = ComboBox(ObservableEnums.ATTACK_TYPES_NULLABLE).apply {
+        setNullToStringConverter("Any")
+        value = entityData.attackType ?: null
         changesChecker.add(this) { value }
         fieldsSaver.add { it.attackType = value }
     }
 
-    val skillType = ComboBox(ObservableEnums.SKILL_TYPES).apply {
-        value = entityData.type ?: SkillType.NO_TYPE
+    val skillType = ComboBox(ObservableEnums.SKILL_TYPES_NULLABLE).apply {
+        setNullToStringConverter("Any")
+        value = entityData.type ?: null
         changesChecker.add(this) { value }
         fieldsSaver.add { it.type = value }
     }
@@ -68,14 +71,16 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
         fieldsSaver.add { it.elements = selected.toHashSet() }
     }
 
-    val effectField = ComboBox(ObservableEnums.SKILL_EFFECTS).apply {
-        value = entityData.effect ?: SkillEffect.NO
+    val effectField = ComboBox(ObservableEnums.SKILL_EFFECTS_NULLABLE).apply {
+        setNullToStringConverter("Any")
+        value = entityData.effect ?: null
         changesChecker.add(this) { value }
         fieldsSaver.add { it.effect = value }
     }
 
-    val buffType = ComboBox(ObservableEnums.BUFF_TYPES).apply {
-        value = entityData.buffType ?: BuffType.PHYSIC
+    val buffType = ComboBox(ObservableEnums.BUFF_TYPES_NULLABLE).apply {
+        setNullToStringConverter("Any")
+        value = entityData.buffType ?: null
         changesChecker.add(this) { value }
         fieldsSaver.add { it.buffType = value }
     }

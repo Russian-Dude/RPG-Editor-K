@@ -231,7 +231,7 @@ val EVENT = EntityDataType(
     hasPackedImages = false,
     canBeDescriber = false,
     newViewFunc = { wrapper -> EventView(wrapper) },
-    newEntityDataFunc = { EntityDataWrapper(EventData()) },
+    newEntityDataFunc = { EntityDataWrapper(EventData(Functions.generateGuid())) },
     saveLoadPathGet = { Settings.eventsFolder },
     saveLoadPathSet = { Settings.eventsFolder = it },
     createSearchViewFunction = { EventSearchView() }
@@ -250,7 +250,7 @@ val QUEST = EntityDataType(
     hasPackedImages = false,
     canBeDescriber = false,
     newViewFunc = { wrapper -> QuestView(wrapper) },
-    newEntityDataFunc = { EntityDataWrapper(QuestData()) },
+    newEntityDataFunc = { EntityDataWrapper(QuestData(Functions.generateGuid())) },
     saveLoadPathGet = { Settings.questsFolder },
     saveLoadPathSet = { Settings.questsFolder = it },
     createSearchViewFunction = { QuestSearchView() }

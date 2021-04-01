@@ -128,6 +128,9 @@ class LightTheme : Stylesheet() {
             and(hover) {
                 backgroundColor += superWhite
             }
+            and(disabled) {
+                borderColor += box(lightGrey)
+            }
         }
 
         scrollPane {
@@ -202,6 +205,21 @@ class LightTheme : Stylesheet() {
             borderColor += box(darkDeepBlue)
             borderWidth += box(0.5.px)
             borderRadius += box(0.0.px)
+            and(disabled) {
+                borderColor += box(lightGrey)
+            }
+        }
+
+        label {
+            and(disabled) {
+                textFill = lightGrey
+            }
+        }
+
+        text {
+            and(disabled) {
+                textFill = lightGrey
+            }
         }
 
         entityTopMenu {

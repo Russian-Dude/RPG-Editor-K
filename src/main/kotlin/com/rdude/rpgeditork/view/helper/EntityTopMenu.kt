@@ -1,5 +1,6 @@
 package com.rdude.rpgeditork.view.helper
 
+import com.rdude.rpgeditork.enums.MODULE
 import com.rdude.rpgeditork.saveload.EntitySaver
 import com.rdude.rpgeditork.style.LightTheme
 import com.rdude.rpgeditork.utils.loadDialog
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.geometry.Side
+import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import ru.rdude.rpg.game.logic.data.EntityData
 import ru.rdude.rpg.game.logic.data.Module
@@ -32,7 +34,12 @@ class EntityTopMenu<E : EntityData>(
                     saver.save(wrapper)
                 }
             } else {
-                saveToContextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
+                if (wrapper.dataType == MODULE) {
+                    saver.saveToFile(wrapper)
+                }
+                else {
+                    saveToContextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
+                }
             }
         }
     }
@@ -49,7 +56,9 @@ class EntityTopMenu<E : EntityData>(
             topAnchor = 1.0
         }
         add(saveButton)
-        add(saveToButton)
+        if (wrapper.dataType != MODULE) {
+            add(saveToButton)
+        }
         label(wrapper.insideAsStringProperty) {
             isDisable = true
             paddingLeftProperty.set(25.0)
