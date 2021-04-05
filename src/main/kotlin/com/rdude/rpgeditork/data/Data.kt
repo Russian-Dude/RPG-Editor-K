@@ -4,6 +4,7 @@ import com.rdude.rpgeditork.enums.dataMap
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
 import com.rdude.rpgeditork.wrapper.ResourceWrapper
+import com.rdude.rpgeditork.wrapper.SoundResourceWrapper
 import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.MapChangeListener
@@ -47,8 +48,9 @@ object Data {
     val imagesList: ObservableList<ImageResourceWrapper> = FXCollections.observableArrayList()
     { w -> arrayOf(w.nameProperty) }
 
-    // TODO: 25.02.2021 sounds should not be images :)
-    val sounds: ObservableMap<Long, ResourceWrapper<Image>> = FXCollections.observableHashMap()
+    val sounds: ObservableMap<Long, SoundResourceWrapper> = FXCollections.observableHashMap()
+    val soundsList: ObservableList<SoundResourceWrapper> = FXCollections.observableArrayList()
+    { w -> arrayOf(w.nameProperty) }
 
 
     init {
@@ -67,31 +69,43 @@ object Data {
             modulesList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.soundResources
+                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
         })
         skillsMap.addListener(MapChangeListener { change ->
             skillsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.soundResources
+                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
         })
         itemsMap.addListener(MapChangeListener { change ->
             itemsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.soundResources
+                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
         })
         monstersMap.addListener(MapChangeListener { change ->
             monstersList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.soundResources
+                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
         })
         eventsMap.addListener(MapChangeListener { change ->
             eventsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.soundResources
+                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
         })
         questsMap.addListener(MapChangeListener { change ->
             questsList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.soundResources
+                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
         })
         images.addListener(MapChangeListener { change ->
             if (change.wasAdded()) {
@@ -101,8 +115,14 @@ object Data {
                 imagesList.remove(change.valueRemoved)
             }
         })
-
-        // TODO: link sounds
+        sounds.addListener(MapChangeListener { change ->
+            if (change.wasAdded()) {
+                soundsList.add(change.valueAdded)
+            }
+            else if (change.wasRemoved()) {
+                soundsList.remove(change.valueRemoved)
+            }
+        })
     }
 
     fun <T : EntityData> addEntity(wrapper: EntityDataWrapper<T>) {

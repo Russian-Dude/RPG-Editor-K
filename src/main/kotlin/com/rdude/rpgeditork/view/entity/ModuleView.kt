@@ -7,13 +7,13 @@ import com.rdude.rpgeditork.saveload.EntitySaver
 import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.dialogs.InfoDialog
-import com.rdude.rpgeditork.utils.dialogs.ShowImageDialog
-import com.rdude.rpgeditork.utils.dialogs.SimpleDialog
 import com.rdude.rpgeditork.utils.loadDialog
 import com.rdude.rpgeditork.view.MainView
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
+import com.rdude.rpgeditork.view.helper.SoundPlayer
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
+import com.rdude.rpgeditork.wrapper.SoundResourceWrapper
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
@@ -91,6 +91,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     spacing = 10.0
                     alignment = Pos.CENTER_LEFT
                     add(ImagesList(this@ModuleView))
+                    add(SoundsList(this@ModuleView))
                 }
             }
         }
@@ -270,6 +271,110 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             moduleView.entityData.resources.addImageResource(imageResourceWrapper.resource)
             Data.images[imageResourceWrapper.guid] = imageResourceWrapper
             return imageResourceWrapper
+        }
+    }
+
+    class SoundsList(private val moduleView: ModuleView) : Fragment() {
+
+        private val predicate =
+            Predicate<SoundResourceWrapper> { w -> moduleView.entityData.resources.soundResources.contains(w.resource) }
+        private val filteredList = FilteredList(Data.soundsList, predicate)
+
+        override val root = vbox {
+            paddingAll = 10.0
+            spacing = 5.0
+            alignment = Pos.TOP_CENTER
+            text("Sounds")
+            hbox {
+                button(" Load from file ") {
+                    hgrow = Priority.ALWAYS
+                    maxWidth = Double.MAX_VALUE
+                    action {
+                        loadSoundsFromFile()
+                    }
+                }
+                button("Copy from module") {
+                    hgrow = Priority.ALWAYS
+                    maxWidth = Double.MAX_VALUE
+                    action {
+                        val wrapper = Dialogs.soundsSearchDialog.showAndWait()
+                            .orElse(null)?.copy() ?: return@action
+                        moduleView.wrapper.entityData.resources.addSoundResource(wrapper.resource)
+                        Data.sounds[wrapper.guid] = wrapper
+                    }
+                }
+            }
+            add(SearchPane(filteredList).apply {
+                setNameBy { w -> w.nameProperty.get() }
+                setTextFieldSearchBy({ w -> w.nameProperty.get() })
+                setCellGraphic( {SoundPlayer()}, { res, player -> player.resource = res } )
+
+                addContextMenuItem("Rename") {
+                    Dialogs.renameDialog(it.nameProperty)
+                }
+                addContextMenu("Replace") { replace ->
+                    replace.menuItem("With sound from file") {
+                        val wrapper = loadSoundsFromFile() ?: return@menuItem
+                        moduleView.entityData.resources.remove(it.resource)
+                        Data.allEntities.forEach { w ->
+                            w.mainView?.soundPickers?.forEach { picker -> picker.soundResourceWrapper = wrapper }
+                            w.entityData.resources.swapSound(it.resource, wrapper.resource)
+                        }
+                        Data.sounds.remove(it.guid)
+                    }
+                    replace.menuItem("With sound from data") {
+                        val wrapper = Dialogs.soundsSearchDialog.showAndWait().orElse(null) ?: return@menuItem
+                        if (wrapper == it) return@menuItem
+                        moduleView.entityData.resources.remove(it.resource)
+                        Data.allEntities.forEach { w ->
+                            w.mainView?.soundPickers?.forEach { picker -> picker.soundResourceWrapper = wrapper }
+                            w.entityData.resources.swapSound(it.resource, wrapper.resource)
+                        }
+                        Data.sounds.remove(it.guid)
+                    }
+                }
+
+                addContextMenuItem("Remove") {
+                    val used = Data.allEntities
+                        .filter { w -> w.entityData.resources.soundResources.contains(it.resource) }
+                    if (used.isNotEmpty()) {
+                        val usedAsString = used
+                            .take(3)
+                            .map { w -> w.entityNameProperty.get() }
+                            .reduce { a, b -> "$a, $b" }
+                        val andAmount = if (used.size <= 3) "" else " and ${used.size - 3} more entities"
+                        val question = "This sound is used by $usedAsString$andAmount.\r\nRemove it anyway?"
+                        if (!Dialogs.confirmationDialog(question)) {
+                            return@addContextMenuItem
+                        }
+                    }
+                    moduleView.wrapper.entityData.resources.soundResources.remove(it.resource)
+                    Data.sounds.remove(it.resource.guid)
+                }
+                moduleView.changesChecker.add(this) {
+                    listView.items.sorted() to listView.items.map { it.name }.sorted()
+                }
+            })
+        }
+
+        private fun loadSoundsFromFile(): SoundResourceWrapper? {
+            val file = chooseFile(
+                filters = arrayOf(FileChooser.ExtensionFilter("sound", "*.mp3")),
+                mode = FileChooserMode.Single,
+                title = "Load image",
+                initialDirectory = Settings.loadSoundFolder.toFile()
+            )
+            if (file.isEmpty()) {
+                return null
+            }
+            Settings.loadSoundFolder = file[0].parentFile.toPath()
+            val guid = Functions.generateGuid()
+            Files.copy(file[0].toPath(), Path.of(Settings.tempSoundsFolder.toString(), "$guid.mp3"))
+            val soundResourceWrapper = SoundResourceWrapper(Resource(file[0].name.replace(".mp3", ""), guid))
+            soundResourceWrapper.file.toFile().deleteOnExit()
+            moduleView.entityData.resources.addSoundResource(soundResourceWrapper.resource)
+            Data.sounds[soundResourceWrapper.guid] = soundResourceWrapper
+            return soundResourceWrapper
         }
     }
 }

@@ -6,6 +6,7 @@ import com.rdude.rpgeditork.utils.*
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.view.helper.ImagePicker
 import com.rdude.rpgeditork.view.helper.SkillsOnBeingActionSelectorElement
+import com.rdude.rpgeditork.view.helper.SoundPicker
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.HPos
 import javafx.geometry.Pos
@@ -666,6 +667,16 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         imagePickers.add(this)
     }
 
+    val skillSound = SoundPicker(
+        header = "Sound",
+        audioButtonAreaHeight = 64.0
+    ).apply {
+        soundResourceWrapper = Data.sounds[entityData.resources.skillSound?.guid]
+        changesChecker.add(this) { soundResourceWrapper?.guid }
+        fieldsSaver.add { it.resources.skillSound = soundResourceWrapper?.resource }
+        soundPickers.add(this)
+    }
+
 
     override val root = anchorpane {
         tabpane {
@@ -971,8 +982,9 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                             font = Font.font(16.0)
                         }
                         hbox {
-                            spacing = 5.0
+                            spacing = 15.0
                             add(skillIcon)
+                            add(skillSound)
                             vbox {
                                 spacing = 5.0
                                 alignment = Pos.TOP_CENTER

@@ -11,9 +11,9 @@ import tornadofx.observable
 object ObservableEnums {
     val ATTACK_TYPES: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList())
     val ATTACK_WITHOUT_WEAPON_TYPE: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList().filter { at -> at != AttackType.WEAPON_TYPE })
-    val ATTACK_TYPES_NULLABLE: ObservableList<AttackType?> = FXCollections.observableArrayList(AttackType.values().asList()).apply { add(null) }
+    val ATTACK_TYPES_NULLABLE: ObservableList<AttackType?> = FXCollections.observableArrayList(AttackType.values().asList()).apply { add(0, null) }
     val SKILL_TYPES: ObservableList<SkillType> = FXCollections.observableArrayList(SkillType.values().asList())
-    val SKILL_TYPES_NULLABLE: ObservableList<SkillType?> = FXCollections.observableArrayList(SkillType.values().asList()).apply { add(null) }
+    val SKILL_TYPES_NULLABLE: ObservableList<SkillType?> = FXCollections.observableArrayList(SkillType.values().asList()).apply { add(0, null) }
     val MAIN_TARGETS: ObservableList<Target> = Target.values().filter { it.isCanBeMainTarget }.asObservable()
     val SUB_TARGETS: ObservableList<Target> = Target.values().filter { it.isCanBeSubTarget }.asObservable()
     val ELEMENTS: ObservableList<Element> = Element.values().toMutableList().asObservable()
@@ -21,14 +21,17 @@ object ObservableEnums {
     val SIZES: ObservableList<Size> = Size.values().toMutableList().asObservable()
     val SIZES_WITH_NULL: ObservableList<NullableSize> = NullableSize.values().toMutableList().asObservable()
     val SKILL_EFFECTS: ObservableList<SkillEffect> = SkillEffect.values().toMutableList().asObservable()
-    val SKILL_EFFECTS_NULLABLE: ObservableList<SkillEffect?> = SkillEffect.values().toMutableList<SkillEffect?>().asObservable().apply { add(null) }
+    val SKILL_EFFECTS_NULLABLE: ObservableList<SkillEffect?> = SkillEffect.values().toMutableList<SkillEffect?>().asObservable().apply { add(0, null) }
     val SKILL_OVERLAY: ObservableList<SkillOverlay> = SkillOverlay.values().toMutableList().asObservable()
     val BUFF_TYPES: ObservableList<BuffType> = BuffType.values().toMutableList().asObservable()
-    val BUFF_TYPES_NULLABLE: ObservableList<BuffType?> = BuffType.values().toMutableList<BuffType?>().asObservable().apply { add(null) }
+    val BUFF_TYPES_NULLABLE: ObservableList<BuffType?> = BuffType.values().toMutableList<BuffType?>().asObservable().apply { add(0, null) }
     val STAT_NAMES: ObservableList<StatName> = StatName.values().toMutableList().asObservable()
     val FORMULA_VARIABLES: ObservableList<FormulaVariable> = FormulaVariable.values().toMutableList().asObservable()
     val BEING_ACTIONS: ObservableList<BeingAction.Action> = BeingAction.Action.values().toMutableList().asObservable()
     val ITEM_MAIN_TYPES: ObservableList<ItemMainType> = ItemMainType.values().toMutableList().asObservable()
+    val ITEM_MAIN_TYPES_NULLABLE: ObservableList<ItemMainType?> = ItemMainType.values().toMutableList<ItemMainType?>().asObservable().apply { add(0, null) }
     val ITEM_TYPES: ObservableList<ItemType> = ItemType.values().toMutableList().asObservable()
+    val ITEM_TYPES_NULLABLE: ObservableList<ItemType?> = ItemType.values().toMutableList<ItemType?>().asObservable().apply { add(0, null) }
     val ITEM_RARITY: ObservableList<ItemRarity> = ItemRarity.values().toMutableList().asObservable()
+    val ITEM_RARITY_NULLABLE: ObservableList<ItemRarity?> = ItemRarity.values().toMutableList<ItemRarity?>().asObservable().apply { add(0, null) }
 }

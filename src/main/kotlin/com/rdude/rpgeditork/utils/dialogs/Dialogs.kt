@@ -1,6 +1,7 @@
 package com.rdude.rpgeditork.utils.dialogs
 
 import com.rdude.rpgeditork.data.Data
+import com.rdude.rpgeditork.view.helper.SoundPlayer
 import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
 import javafx.beans.property.StringProperty
 import javafx.collections.transformation.FilteredList
@@ -40,6 +41,7 @@ object Dialogs {
     }
 
 
+    // images
     private val imagesFiltered = FilteredList(Data.imagesList)
     private val imageSearchDialog = SearchDialog(imagesFiltered).apply {
         with(searchPane) {
@@ -62,5 +64,14 @@ object Dialogs {
     fun imageSearchDialog(predicate: Predicate<ImageResourceWrapper>): Optional<ImageResourceWrapper> {
         imagesFiltered.predicate = predicate
         return imageSearchDialog.showAndWait()
+    }
+
+    // sounds
+    val soundsSearchDialog = SearchDialog(Data.soundsList).apply {
+        with(searchPane) {
+            setNameBy { w -> w.nameProperty.get() }
+            setTextFieldSearchBy({ w -> w.nameProperty.get() })
+            setCellGraphic( { SoundPlayer() }, { res, player -> player.resource = res } )
+        }
     }
 }

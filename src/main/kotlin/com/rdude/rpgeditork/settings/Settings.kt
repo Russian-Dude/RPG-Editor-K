@@ -102,6 +102,12 @@ object Settings {
             field = value
         }
 
+    var loadSoundFolder = properties.getFileOrDefault("load_sound_folder")
+        set(value) {
+            storeProperty("load_sound_folder", value.toString())
+            field = value
+        }
+
     val styleThemeProperty = SimpleObjectProperty(
         StyleTheme.valueOf(properties.getOrDefault("theme", StyleTheme.values().first().name) as String)
     )

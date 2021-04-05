@@ -3,6 +3,7 @@ package com.rdude.rpgeditork.utils
 import com.rdude.rpgeditork.saveload.GameJsonSerializerController
 import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.dialogs.LoadDialog
+import com.rdude.rpgeditork.view.helper.SoundPlayer
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.control.*
@@ -53,8 +54,13 @@ fun GridPane.row(text1: String, text2: String) = row {
 }
 
 fun clearTempFolders() {
+    // images
     Files.list(Settings.tempImagesFolder).forEach { Files.delete(it) }
     Files.list(Settings.tempPackedImagesFolder).forEach { it.toFile().deleteRecursively() }
+    // sounds
+    SoundPlayer.instances.forEach { it.stop(); it.dispose() }
+    Files.list(Settings.tempSoundsFolder).forEach { Files.delete(it) }
+    // other files
     Files.list(Settings.tempFolder)
         .filter { Files.isDirectory(it) && it.fileName.toString().isLong() }
         .forEach {
