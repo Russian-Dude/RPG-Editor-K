@@ -299,14 +299,14 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
         filterInput { it.controlNewText.isInt() && it.controlNewText.toInt().isPositive() }
         text = entityData.weaponData.minDmg.toInt().toString()
         changesChecker.add(this) { text }
-        fieldsSaver.add { it.weaponData.minDmg = text.toDouble() }
+        fieldsSaver.add { it.weaponData.minDmg = if (text.isDouble()) text.toDouble() else 0.0}
     }
 
     val maxDmg = textfield {
         filterInput { it.controlNewText.isInt() && it.controlNewText.toInt().isPositive() }
         text = entityData.weaponData.maxDmg.toInt().toString()
         changesChecker.add(this) { text }
-        fieldsSaver.add { it.weaponData.maxDmg = text.toDouble() }
+        fieldsSaver.add { it.weaponData.maxDmg = if (text.isDouble()) text.toDouble() else 0.0 }
     }
 
     val description = textarea {

@@ -8,6 +8,7 @@ import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.dialogs.InfoDialog
 import com.rdude.rpgeditork.utils.loadDialog
+import com.rdude.rpgeditork.utils.update
 import com.rdude.rpgeditork.view.MainView
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.view.helper.SoundPlayer
@@ -48,6 +49,10 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
         changesChecker.add(this) { text }
         fieldsSaver.add { it.description = text }
     }
+
+    val imagesList = ImagesList(this)
+
+    val soundsList = SoundsList(this)
 
     override val root = anchorpane {
         tabpane {
@@ -90,12 +95,17 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     fitToParentSize()
                     spacing = 10.0
                     alignment = Pos.CENTER_LEFT
-                    add(ImagesList(this@ModuleView))
-                    add(SoundsList(this@ModuleView))
+                    add(imagesList)
+                    add(soundsList)
                 }
             }
         }
         add(EntityTopMenu(wrapperProperty))
+    }
+
+    fun updateImagesAndSoundsList() {
+        imagesList.update()
+        soundsList.update()
     }
 
     override fun reasonsNotToSave(): List<String> {
@@ -146,7 +156,8 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     }
                 }
             }
-            add(SearchPane(FilteredList(type.dataList) { w -> w.insideModule == moduleView.wrapper }).apply {
+            val insideList = FilteredList(type.dataList) { w -> w.insideModule == moduleView.wrapper }
+            add(SearchPane(insideList).apply {
                 setNameByProperty { w -> w.entityNameProperty }
                 setTextFieldSearchBy({ w -> w.entityNameProperty.get() }, { w -> w.entityData.name })
                 addContextMenuItem("Open") {
@@ -272,6 +283,8 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             Data.images[imageResourceWrapper.guid] = imageResourceWrapper
             return imageResourceWrapper
         }
+
+        fun update() = filteredList.update()
     }
 
     class SoundsList(private val moduleView: ModuleView) : Fragment() {
@@ -376,5 +389,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             Data.sounds[soundResourceWrapper.guid] = soundResourceWrapper
             return soundResourceWrapper
         }
+
+        fun update() = filteredList.update()
     }
 }

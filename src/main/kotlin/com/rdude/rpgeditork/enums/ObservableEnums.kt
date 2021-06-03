@@ -34,4 +34,8 @@ object ObservableEnums {
     val ITEM_TYPES_NULLABLE: ObservableList<ItemType?> = ItemType.values().toMutableList<ItemType?>().asObservable().apply { add(0, null) }
     val ITEM_RARITY: ObservableList<ItemRarity> = ItemRarity.values().toMutableList().asObservable()
     val ITEM_RARITY_NULLABLE: ObservableList<ItemRarity?> = ItemRarity.values().toMutableList<ItemRarity?>().asObservable().apply { add(0, null) }
+    val BIOMS: ObservableList<Biom> = Biom.values().toMutableList().asObservable()
+    val BIOMS_NULLABLE: ObservableList<Biom?> = Biom.values().toMutableList<Biom?>().asObservable().apply { add(0, null) }
+    val RELIEFS: ObservableList<Relief> = Relief.values().toMutableList().asObservable()
+    val RELIEFS_NULLABLE: ObservableList<Relief?> = Relief.values().toMutableList<Relief?>().asObservable().apply { add(0, null) }
 }

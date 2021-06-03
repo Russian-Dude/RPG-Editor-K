@@ -7,6 +7,7 @@ import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.dialogs.SimpleDialog
 import com.rdude.rpgeditork.utils.cloneWithNewGuid
 import com.rdude.rpgeditork.utils.loadDialog
+import com.rdude.rpgeditork.view.entity.ModuleView
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
@@ -147,6 +148,11 @@ class EntitySaver : Controller() {
 
         // add to data
         Data.addEntity(entityToSave)
+
+        // update module view images and sounds list (if open)
+        if (module.open) {
+            (module.mainView as ModuleView).updateImagesAndSoundsList()
+        }
 
         return true
     }

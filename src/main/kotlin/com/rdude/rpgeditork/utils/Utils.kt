@@ -5,6 +5,7 @@ import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.dialogs.LoadDialog
 import com.rdude.rpgeditork.view.helper.SoundPlayer
 import javafx.application.Platform
+import javafx.collections.transformation.FilteredList
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.image.Image
@@ -35,6 +36,8 @@ fun loadDialog(text: String = "", graphic: Image? = null, task: () -> Unit) {
 
 fun String.removeSpaces() = this.replace(" ", "")
 
+fun String.trimZeroes() = this.replace(Regex("\\.0+\\b"), "")
+
 fun Int.isNegative() = this < 0
 
 fun Int.isPositive() = this > 0
@@ -45,6 +48,26 @@ fun GridPane.row(name: String, content: Node, op: Pane.() -> Unit = {}) {
         op.invoke(this)
         text(name)
         add(content)
+    }
+}
+
+fun GridPane.row(
+    text1: String, content1: Node,
+    text2: String, content2: Node,
+    text3: String, content3: Node,
+    op: Pane.() -> Unit = {}) {
+
+    (content1 as? Control)?.maxWidth = Double.MAX_VALUE
+    (content2 as? Control)?.maxWidth = Double.MAX_VALUE
+    (content3 as? Control)?.maxWidth = Double.MAX_VALUE
+    row {
+        op.invoke(this)
+        text(text1)
+        add(content1)
+        text(text2)
+        add(content2)
+        text(text3)
+        add(content3)
     }
 }
 
@@ -70,6 +93,12 @@ fun clearTempFolders() {
 
 fun ComboBox<*>.setNullToStringConverter(nullToString: String) {
     converter = NullableStringConverter(nullToString)
+}
+
+fun FilteredList<*>.update() {
+    val predicate = this.predicate;
+    this.setPredicate { false }
+    this.predicate = predicate
 }
 
 

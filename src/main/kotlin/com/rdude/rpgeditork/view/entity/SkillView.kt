@@ -408,6 +408,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         .get()
         .apply {
             ITEM.configSearchDialog(searchDialog)
+            addOption { e -> e.setSizePercentages(70.0, 30.0) }
             addOption { e ->
                 e.textField.filterInput {
                     it.controlNewText.isInt() && it.controlNewText.toInt().isPositive()
@@ -533,6 +534,8 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get().apply {
+            ITEM.configSearchDialog(searchDialog)
+            addOption { s -> s.setSizePercentages(70.0, 30.0) }
             addOption { s -> s.textField.filterInput { t -> t.controlNewText.isInt() } }
             entityData.receiveItems.forEach { add(Data.itemsMap[it.key]).textField.text = it.value.toString() }
             changesChecker.add(this) {
