@@ -367,7 +367,7 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
                                     vbox {
                                         spacing = 5.0
                                         alignment = Pos.CENTER_LEFT
-                                        text("Spawn bioms")
+                                        text("Spawn biomes")
                                         add(spawnBiomsAll)
                                     }
                                     add(spawnBioms.apply { prefHeight = 80.0 })

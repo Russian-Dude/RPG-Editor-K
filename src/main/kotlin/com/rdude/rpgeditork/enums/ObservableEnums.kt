@@ -11,6 +11,7 @@ import tornadofx.observable
 object ObservableEnums {
     val ATTACK_TYPES: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList())
     val ATTACK_WITHOUT_WEAPON_TYPE: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList().filter { at -> at != AttackType.WEAPON_TYPE })
+    val ATTACK_WITHOUT_WEAPON_TYPE_NULLABLE: ObservableList<AttackType?> = FXCollections.observableArrayList(AttackType.values().asList().filter { at -> at != AttackType.WEAPON_TYPE }).apply { add(0, null) }
     val ATTACK_TYPES_NULLABLE: ObservableList<AttackType?> = FXCollections.observableArrayList(AttackType.values().asList()).apply { add(0, null) }
     val SKILL_TYPES: ObservableList<SkillType> = FXCollections.observableArrayList(SkillType.values().asList())
     val SKILL_TYPES_NULLABLE: ObservableList<SkillType?> = FXCollections.observableArrayList(SkillType.values().asList()).apply { add(0, null) }
@@ -19,6 +20,7 @@ object ObservableEnums {
     val ELEMENTS: ObservableList<Element> = Element.values().toMutableList().asObservable()
     val BEING_TYPES: ObservableList<BeingType> = BeingType.values().toMutableList().asObservable()
     val SIZES: ObservableList<Size> = Size.values().toMutableList().asObservable()
+    val SIZES_NULLABLE: ObservableList<Size?> = Size.values().toMutableList<Size?>().asObservable().apply { add(0, null) }
     val SIZES_WITH_NULL: ObservableList<NullableSize> = NullableSize.values().toMutableList().asObservable()
     val SKILL_EFFECTS: ObservableList<SkillEffect> = SkillEffect.values().toMutableList().asObservable()
     val SKILL_EFFECTS_NULLABLE: ObservableList<SkillEffect?> = SkillEffect.values().toMutableList<SkillEffect?>().asObservable().apply { add(0, null) }
