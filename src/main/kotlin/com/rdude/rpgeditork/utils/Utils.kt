@@ -36,6 +36,8 @@ fun loadDialog(text: String = "", graphic: Image? = null, task: () -> Unit) {
 
 fun String.removeSpaces() = this.replace(" ", "")
 
+fun String.startsWithAnyOf(vararg value: String) = value.any { this.startsWith(it) }
+
 fun String.trimZeroes() = this.replace(Regex("\\.0+\\b"), "")
 
 fun Int.isNegative() = this < 0

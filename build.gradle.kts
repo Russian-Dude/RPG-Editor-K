@@ -32,6 +32,7 @@ dependencies {
     implementation("no.tornado:tornadofx:1.7.20")
     implementation(files("C:\\Java\\MyProjects\\RPG-E\\RPG\\out\\artifacts\\RPG_E_jar\\RPG.jar"))
     implementation(files("C:\\Java\\MyProjects\\FxLib\\jar\\FxExLib.jar"))
+    implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
 }
 
 

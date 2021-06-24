@@ -107,7 +107,6 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
     }
 
     val stats = SelectorContainer.withTextField(ObservableEnums.STAT_NAMES)
-        .disableSearch()
         .sizePercentages(70.0, 30.0)
         .nameBy(StatName::getName)
         .searchBy({ s -> s.variableName }, { s -> s.getName() })
@@ -126,7 +125,7 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
             fieldsSaver.add { entity ->
                 entity.stats.forEachWithNestedStats { it.set(0.0) }
                 selectedElementsNodes.forEach {
-                    entity.stats[it.value.clazz].set(it.textField.text.toDouble())
+                    entity.stats[it.value].set(it.textField.text.toDouble())
                 }
             }
         }
@@ -150,7 +149,7 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
             fieldsSaver.add { entity ->
                 entity.requirements.forEachWithNestedStats { it.set(0.0) }
                 selectedElementsNodes.forEach {
-                    entity.requirements[it.value.clazz].set(it.textField.text.toDouble())
+                    entity.requirements[it.value].set(it.textField.text.toDouble())
                 }
             }
         }

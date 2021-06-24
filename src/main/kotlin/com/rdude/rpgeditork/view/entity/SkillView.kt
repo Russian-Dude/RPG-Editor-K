@@ -338,13 +338,27 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             .get()
             .apply {
                 setHasSearchButton(false)
-                entityData.stats.forEach { if (it.value.isNotBlank()) add(it.key).setText(it.value) }
+                entityData.stats.forEach {
+                    if (it.value.isNotBlank()) {
+                        var stringValue = it.value
+                        if (stringValue.startsWith(it.key.variableName)) {
+                            stringValue.removePrefix(it.key.variableName)
+                        }
+                        add(it.key).setText(stringValue)
+                    }
+                }
                 changesChecker.add(this) {
                     selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
                 }
                 fieldsSaver.add { entity ->
                     ObservableEnums.STAT_NAMES.forEach { entity.stats[it] = "" }
-                    selectedElementsNodes.forEach { entity.stats[it.value] = it.textField.text }
+                    selectedElementsNodes.forEach {
+                        var stringValue = it.textField.text.removeSpaces()
+                        if (stringValue.startsWithAnyOf("+", "-", "/", "*")) {
+                            stringValue = it.value.variableName + stringValue
+                        }
+                        entity.stats[it.value] = stringValue
+                    }
                 }
             }
 
