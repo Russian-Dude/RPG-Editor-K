@@ -28,6 +28,10 @@ data class EntityDataType<E : EntityData>(
         wrapper.entityData.resources.soundResources
             .mapNotNull { Data.sounds[it.guid]?.file }
     },
+    val particleFiles: (EntityDataWrapper<E>) -> List<Path> = { wrapper ->
+        wrapper.entityData.resources.particleResources
+            .mapNotNull { Data.particles[it.guid]?.file }
+    },
     val name: String,
     val hasPackedImages: Boolean,
     val canBeDescriber: Boolean,
@@ -89,6 +93,9 @@ val <E : EntityData> EntityDataWrapper<E>.imageFiles: List<Path>
 
 val <E : EntityData> EntityDataWrapper<E>.soundFiles: List<Path>
     get() = this.dataType.soundFiles.invoke(this)
+
+val <E : EntityData> EntityDataWrapper<E>.particleFiles: List<Path>
+    get() = this.dataType.particleFiles.invoke(this)
 
 val <E : EntityData> EntityDataWrapper<E>.entityTypeName: String
     get() = this.dataType.name

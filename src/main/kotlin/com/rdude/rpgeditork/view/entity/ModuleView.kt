@@ -4,6 +4,7 @@ import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.saveload.EntityLoader
 import com.rdude.rpgeditork.saveload.EntitySaver
+import com.rdude.rpgeditork.saveload.ParticleFileLoader
 import com.rdude.rpgeditork.settings.Settings
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.dialogs.InfoDialog
@@ -14,6 +15,7 @@ import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.view.helper.SoundPlayer
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
+import com.rdude.rpgeditork.wrapper.ParticleResourceWrapper
 import com.rdude.rpgeditork.wrapper.SoundResourceWrapper
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
@@ -53,6 +55,8 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
     val imagesList = ImagesList(this)
 
     val soundsList = SoundsList(this)
+
+    val particleList = ParticleList(this)
 
     override val root = anchorpane {
         tabpane {
@@ -97,15 +101,17 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     alignment = Pos.CENTER_LEFT
                     add(imagesList)
                     add(soundsList)
+                    add(particleList)
                 }
             }
         }
         add(EntityTopMenu(wrapperProperty))
     }
 
-    fun updateImagesAndSoundsList() {
+    fun updateLists() {
         imagesList.update()
         soundsList.update()
+        particleList.update()
     }
 
     override fun reasonsNotToSave(): List<String> {
@@ -254,7 +260,9 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                             return@addContextMenuItem
                         }
                     }
-                    moduleView.wrapper.entityData.resources.imageResources.remove(it.resource)
+                    moduleView.wrapper.imagesWereChanged = true
+                    moduleView.wrapper.entityData.resources.remove(it.resource)
+                    used.forEach { wrapper -> wrapper.entityData.resources.remove(it.resource) }
                     Data.images.remove(it.resource.guid)
                 }
                 moduleView.changesChecker.add(this, true) {
@@ -361,7 +369,8 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                             return@addContextMenuItem
                         }
                     }
-                    moduleView.wrapper.entityData.resources.soundResources.remove(it.resource)
+                    moduleView.wrapper.entityData.resources.remove(it.resource)
+                    used.forEach { wrapper -> wrapper.entityData.resources.remove(it.resource) }
                     Data.sounds.remove(it.resource.guid)
                 }
                 moduleView.changesChecker.add(this) {
@@ -374,7 +383,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             val file = chooseFile(
                 filters = arrayOf(FileChooser.ExtensionFilter("sound", "*.mp3")),
                 mode = FileChooserMode.Single,
-                title = "Load image",
+                title = "Load sound",
                 initialDirectory = Settings.loadSoundFolder.toFile()
             )
             if (file.isEmpty()) {
@@ -388,6 +397,108 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             moduleView.entityData.resources.addSoundResource(soundResourceWrapper.resource)
             Data.sounds[soundResourceWrapper.guid] = soundResourceWrapper
             return soundResourceWrapper
+        }
+
+        fun update() = filteredList.update()
+    }
+
+    class ParticleList(private val moduleView: ModuleView) : Fragment() {
+
+        private val predicate =
+            Predicate<ParticleResourceWrapper> { w -> moduleView.entityData.resources.particleResources.contains(w.resource) }
+        private val filteredList = FilteredList(Data.particlesList, predicate)
+
+        override val root = vbox {
+            paddingAll = 10.0
+            spacing = 5.0
+            alignment = Pos.TOP_CENTER
+            text("Particles")
+            hbox {
+                button(" Load from file ") {
+                    hgrow = Priority.ALWAYS
+                    maxWidth = Double.MAX_VALUE
+                    action {
+                        loadParticlesFromFile()
+                    }
+                }
+                button("Copy from module") {
+                    hgrow = Priority.ALWAYS
+                    maxWidth = Double.MAX_VALUE
+                    action {
+                        val wrapper = Dialogs.particlesSearchDialog.showAndWait()
+                            .orElse(null)?.copy() ?: return@action
+                        moduleView.wrapper.entityData.resources.addParticleResource(wrapper.resource)
+                        Data.particles[wrapper.guid] = wrapper
+                    }
+                }
+            }
+            add(SearchPane(filteredList).apply {
+                setNameBy { w -> w.nameProperty.get() }
+                setTextFieldSearchBy({ w -> w.nameProperty.get() })
+
+                addContextMenuItem("Rename") {
+                    Dialogs.renameDialog(it.nameProperty)
+                }
+                addContextMenu("Replace") { replace ->
+                    replace.menuItem("With particle from file") {
+                        val wrapper = loadParticlesFromFile() ?: return@menuItem
+                        moduleView.entityData.resources.remove(it.resource)
+                        Data.allEntities.forEach { w ->
+                            w.mainView?.particleHolders?.forEach { holder -> holder.particle = wrapper }
+                            w.entityData.resources.swapParticle(it.resource, wrapper.resource)
+                        }
+                        Data.particles.remove(it.guid)
+                    }
+                    replace.menuItem("With particle from data") {
+                        val wrapper = Dialogs.particlesSearchDialog.showAndWait().orElse(null) ?: return@menuItem
+                        if (wrapper == it) return@menuItem
+                        moduleView.entityData.resources.remove(it.resource)
+                        Data.allEntities.forEach { w ->
+                            w.mainView?.particleHolders?.forEach { holder -> holder.particle = wrapper }
+                            w.entityData.resources.swapParticle(it.resource, wrapper.resource)
+                        }
+                        Data.particles.remove(it.guid)
+                    }
+                }
+
+                addContextMenuItem("Remove") {
+                    val used = Data.allEntities
+                        .filter { w -> w.entityData.resources.particleResources.contains(it.resource) }
+                    if (used.isNotEmpty()) {
+                        val usedAsString = used
+                            .take(3)
+                            .map { w -> w.entityNameProperty.get() }
+                            .reduce { a, b -> "$a, $b" }
+                        val andAmount = if (used.size <= 3) "" else " and ${used.size - 3} more entities"
+                        val question = "This particle is used by $usedAsString$andAmount.\r\nRemove it anyway?"
+                        if (!Dialogs.confirmationDialog(question)) {
+                            return@addContextMenuItem
+                        }
+                    }
+                    moduleView.wrapper.entityData.resources.remove(it.resource)
+                    used.forEach { wrapper -> wrapper.entityData.resources.remove(it.resource) }
+                    moduleView.wrapper.imagesWereChanged = true
+                    Data.particles.remove(it.resource.guid)
+                }
+
+                moduleView.changesChecker.add(this) {
+                    listView.items.sorted() to listView.items.map { it.name }.sorted()
+                }
+            })
+        }
+
+        private fun loadParticlesFromFile(): ParticleResourceWrapper? {
+            val particleAndImages = ParticleFileLoader.loadParticlesFromFile()
+            if (particleAndImages != null) {
+                moduleView.wrapper.imagesWereChanged = true
+                particleAndImages.images.forEach {
+                    moduleView.entityData.resources.addImageResource(it.resource)
+                    Data.images[it.guid] = it
+                }
+                moduleView.entityData.resources.addParticleResource(particleAndImages.particle.resource)
+                Data.particles[particleAndImages.particle.guid] = particleAndImages.particle
+            }
+            return particleAndImages?.particle
         }
 
         fun update() = filteredList.update()

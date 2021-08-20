@@ -14,6 +14,7 @@ import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.ItemData
+import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
 import ru.rdude.rpg.game.logic.enums.ItemMainType
 import ru.rdude.rpg.game.logic.enums.ItemRarity
 import ru.rdude.rpg.game.logic.enums.ItemType
@@ -54,8 +55,9 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
 
     val mainType = ComboBox(ObservableEnums.ITEM_MAIN_TYPES_NULLABLE).apply {
         setNullToStringConverter("ANY")
-        value = entityData.itemType?.mainType
+        value = entityData.itemMainType
         changesChecker.add(this) { value }
+        fieldsSaver.add { it.itemMainType = value }
     }
 
     val type = ComboBox<ItemType?>().apply {
@@ -64,13 +66,6 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
         val predicate = Predicate<ItemType?> { itemType -> mainType.value == itemType?.mainType || itemType == null }
         val filteredList = FilteredList(ObservableEnums.ITEM_TYPES_NULLABLE, predicate)
         items = filteredList
-        mainType.valueProperty().onChange {
-            filteredList.predicate = null
-            filteredList.predicate = predicate
-            if (value == null || value?.mainType != mainType.value) {
-                value = filteredList.first()
-            }
-        }
         // load, save
         value = entityData.itemType
         changesChecker.add(this) { value }
@@ -97,6 +92,18 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
         fieldsSaver.add { it.description = text }
     }
 
+    val itemInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
+        value = entityData.entityInfo ?: EntityReferenceInfo.ALL
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityInfo = value }
+    }
+
+    val referenceInfo = ComboBox(ObservableEnums.ENTITY_REFERENCE_INFO).apply {
+        value = entityData.entityReferenceInfo ?: EntityReferenceInfo.NAME
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityReferenceInfo = value }
+    }
+
     override val root = anchorpane {
         tabpane {
             fitToParentSize()
@@ -115,6 +122,8 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
                         row("Main type", mainType)
                         row("Type", type)
                         row("Elements", elements.apply { prefHeight = 80.0 })
+                        row("Item info", itemInfo)
+                        row("References info", referenceInfo)
                     }
                     vbox {
                         spacing = 10.0

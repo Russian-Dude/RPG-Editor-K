@@ -1,10 +1,7 @@
 package com.rdude.rpgeditork.data
 
 import com.rdude.rpgeditork.enums.dataMap
-import com.rdude.rpgeditork.wrapper.EntityDataWrapper
-import com.rdude.rpgeditork.wrapper.ImageResourceWrapper
-import com.rdude.rpgeditork.wrapper.ResourceWrapper
-import com.rdude.rpgeditork.wrapper.SoundResourceWrapper
+import com.rdude.rpgeditork.wrapper.*
 import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.MapChangeListener
@@ -52,6 +49,10 @@ object Data {
     val soundsList: ObservableList<SoundResourceWrapper> = FXCollections.observableArrayList()
     { w -> arrayOf(w.nameProperty) }
 
+    val particles: ObservableMap<Long, ParticleResourceWrapper> = FXCollections.observableHashMap()
+    val particlesList: ObservableList<ParticleResourceWrapper> = FXCollections.observableArrayList()
+    { w -> arrayOf(w.nameProperty) }
+
 
     init {
         // modules to entities
@@ -71,6 +72,8 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
             change.valueAdded.entityData.resources.soundResources
                 .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.particleResources
+                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
         skillsMap.addListener(MapChangeListener { change ->
             skillsList.add(change.valueAdded)
@@ -78,6 +81,8 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
             change.valueAdded.entityData.resources.soundResources
                 .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.particleResources
+                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
         itemsMap.addListener(MapChangeListener { change ->
             itemsList.add(change.valueAdded)
@@ -85,6 +90,8 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
             change.valueAdded.entityData.resources.soundResources
                 .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.particleResources
+                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
         monstersMap.addListener(MapChangeListener { change ->
             monstersList.add(change.valueAdded)
@@ -92,6 +99,8 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
             change.valueAdded.entityData.resources.soundResources
                 .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.particleResources
+                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
         eventsMap.addListener(MapChangeListener { change ->
             eventsList.add(change.valueAdded)
@@ -99,6 +108,8 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
             change.valueAdded.entityData.resources.soundResources
                 .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.particleResources
+                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
         questsMap.addListener(MapChangeListener { change ->
             questsList.add(change.valueAdded)
@@ -106,6 +117,8 @@ object Data {
                 .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
             change.valueAdded.entityData.resources.soundResources
                 .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+            change.valueAdded.entityData.resources.particleResources
+                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
         images.addListener(MapChangeListener { change ->
             if (change.wasAdded()) {
@@ -121,6 +134,14 @@ object Data {
             }
             else if (change.wasRemoved()) {
                 soundsList.remove(change.valueRemoved)
+            }
+        })
+        particles.addListener(MapChangeListener { change ->
+            if (change.wasAdded()) {
+                particlesList.add(change.valueAdded)
+            }
+            else if (change.wasRemoved()) {
+                particlesList.remove(change.valueRemoved)
             }
         })
     }

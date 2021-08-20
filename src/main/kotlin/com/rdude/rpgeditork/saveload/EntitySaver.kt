@@ -151,7 +151,7 @@ class EntitySaver : Controller() {
 
         // update module view images and sounds list (if open)
         if (module.open) {
-            (module.mainView as ModuleView).updateImagesAndSoundsList()
+            (module.mainView as ModuleView).updateLists()
         }
 
         return true

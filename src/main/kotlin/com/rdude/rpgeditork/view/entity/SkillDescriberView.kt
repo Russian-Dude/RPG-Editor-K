@@ -12,10 +12,7 @@ import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.SkillData
-import ru.rdude.rpg.game.logic.enums.AttackType
-import ru.rdude.rpg.game.logic.enums.BuffType
-import ru.rdude.rpg.game.logic.enums.SkillEffect
-import ru.rdude.rpg.game.logic.enums.SkillType
+import ru.rdude.rpg.game.logic.enums.*
 import tornadofx.*
 
 class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(wrapper) {
@@ -91,6 +88,18 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
         fieldsSaver.add { it.description = text }
     }
 
+    val skillInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
+        value = entityData.entityInfo ?: EntityReferenceInfo.ALL
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityInfo = value }
+    }
+
+    val referenceInfo = ComboBox(ObservableEnums.ENTITY_REFERENCE_INFO).apply {
+        value = entityData.entityReferenceInfo ?: EntityReferenceInfo.NAME
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityReferenceInfo = value }
+    }
+
     override val root = anchorpane {
         tabpane {
             fitToParentSize()
@@ -112,6 +121,8 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
                             row("Elements", elements.apply { prefHeight = 80.0 })
                             row("Effect", effectField)
                             row("Buff type", buffType)
+                            row("Skill info", skillInfo)
+                            row("References info", referenceInfo)
                         }
                         vbox {
                             spacing = 5.0

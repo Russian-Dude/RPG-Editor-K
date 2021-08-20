@@ -8,8 +8,6 @@ import ru.rdude.rpg.game.utils.Functions
 import tornadofx.Controller
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.stream.Collectors
-import kotlin.io.path.exists
 
 class EntityLoader : Controller() {
 
@@ -73,6 +71,16 @@ class EntityLoader : Controller() {
             Files.list(soundsDir)
                 .forEach {
                     Files.move(it, Path.of(Settings.tempSoundsFolder.toString(), it.fileName.toString()))
+                }
+        }
+        // particles
+        val particlesDir = Path.of(tempFolder.toString(), "particles")
+        if (Files.exists(particlesDir)) {
+            Files.list(particlesDir)
+                .forEach {
+                    val tempFile = Path.of(Settings.tempParticlesFolder.toString(), it.fileName.toString())
+                    Files.move(it, tempFile)
+                    tempFile.toFile().deleteOnExit()
                 }
         }
 

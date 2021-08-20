@@ -6,8 +6,10 @@ import com.rdude.rpgeditork.utils.dialogs.InfoDialog
 import com.rdude.rpgeditork.utils.dialogs.SimpleDialog
 import com.rdude.rpgeditork.utils.ViewFieldsSaver
 import com.rdude.rpgeditork.view.helper.ImagePicker
+import com.rdude.rpgeditork.view.helper.ParticleHolder
 import com.rdude.rpgeditork.view.helper.SoundPicker
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
+import com.rdude.rpgeditork.wrapper.ParticleResourceWrapper
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.image.Image
@@ -50,6 +52,8 @@ abstract class EntityView<E : EntityData>(entityWrapper: EntityDataWrapper<E>) :
     val imagePickers: MutableList<ImagePicker> = ArrayList()
 
     val soundPickers: MutableList<SoundPicker> = ArrayList()
+
+    val particleHolders: MutableList<ParticleHolder> = ArrayList()
 
     val canNotSaveDialog = InfoDialog("Can not save ${name.get()} because of:", image = Image("icons\\warning.png"))
 

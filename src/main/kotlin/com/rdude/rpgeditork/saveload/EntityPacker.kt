@@ -2,6 +2,7 @@ package com.rdude.rpgeditork.saveload
 
 import com.rdude.rpgeditork.enums.entityTypeName
 import com.rdude.rpgeditork.enums.imageFiles
+import com.rdude.rpgeditork.enums.particleFiles
 import com.rdude.rpgeditork.enums.soundFiles
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import ru.rdude.rpg.game.logic.data.EntityData
@@ -34,6 +35,13 @@ class EntityPacker : Controller() {
         for (soundFile in wrapper.soundFiles) {
             zipOutputStream.putNextEntry(ZipEntry("sounds/${soundFile.fileName}"))
             Files.copy(soundFile, zipOutputStream)
+            zipOutputStream.closeEntry()
+        }
+
+        // write particles
+        for (particleFile in wrapper.particleFiles) {
+            zipOutputStream.putNextEntry(ZipEntry("particles/${particleFile.fileName}"))
+            Files.copy(particleFile, zipOutputStream)
             zipOutputStream.closeEntry()
         }
 

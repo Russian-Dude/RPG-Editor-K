@@ -33,6 +33,12 @@ dependencies {
     implementation(files("C:\\Java\\MyProjects\\RPG-E\\RPG\\out\\artifacts\\RPG_E_jar\\RPG.jar"))
     implementation(files("C:\\Java\\MyProjects\\FxLib\\jar\\FxExLib.jar"))
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.11.2")
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    implementation("com.fasterxml.jackson.core:jackson-core:2.11.2")
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.11.2")
 }
 
 

@@ -74,4 +74,12 @@ object Dialogs {
             setCellGraphic( { SoundPlayer() }, { res, player -> player.resource = res } )
         }
     }
+
+    // particles
+    val particlesSearchDialog = SearchDialog(Data.particlesList).apply {
+        with(searchPane) {
+            setNameBy { w -> w.nameProperty.get() }
+            setTextFieldSearchBy({ w -> w.nameProperty.get() })
+        }
+    }
 }

@@ -10,6 +10,7 @@ import com.rdude.rpgeditork.utils.setNullToStringConverter
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.Pos
+import javafx.scene.control.ComboBox
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import javafx.scene.text.Font
@@ -17,6 +18,7 @@ import javafx.scene.text.TextAlignment
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.MonsterData
 import ru.rdude.rpg.game.logic.enums.AttackType
+import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
 import ru.rdude.rpg.game.logic.enums.Size
 import tornadofx.*
 
@@ -114,6 +116,18 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
         fieldsSaver.add { it.spawnReliefs = selected.toHashSet() }
     }
 
+    val monsterInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
+        value = entityData.entityInfo ?: EntityReferenceInfo.ALL
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityInfo = value }
+    }
+
+    val referenceInfo = ComboBox(ObservableEnums.ENTITY_REFERENCE_INFO).apply {
+        value = entityData.entityReferenceInfo ?: EntityReferenceInfo.NAME
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityReferenceInfo = value }
+    }
+
     override val root = anchorpane {
         tabpane {
             fitToParentSize()
@@ -159,6 +173,8 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
                                 row("Types", beingTypes.apply { prefHeight = 80.0 })
                                 row("Spawn biomes", spawnBioms.apply { prefHeight = 80.0 })
                                 row("Spawn reliefs", spawnReliefs.apply { prefHeight = 80.0 })
+                                row("Monster info", monsterInfo)
+                                row("References info", referenceInfo)
                             }
                         }
                     }

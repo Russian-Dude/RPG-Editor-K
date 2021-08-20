@@ -13,6 +13,7 @@ import com.rdude.rpgeditork.view.helper.ImagePicker
 import com.rdude.rpgeditork.view.helper.SoundPicker
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.Pos
+import javafx.scene.control.ComboBox
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import javafx.scene.text.Font
@@ -22,6 +23,7 @@ import ru.rdude.rpg.game.logic.data.ItemData
 import ru.rdude.rpg.game.logic.data.MonsterData
 import ru.rdude.rpg.game.logic.data.SkillData
 import ru.rdude.rpg.game.logic.enums.AttackType
+import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
 import ru.rdude.rpg.game.logic.enums.Size
 import ru.rdude.rpg.game.logic.stats.Bonus
 import ru.rdude.rpg.game.logic.stats.Stat
@@ -301,6 +303,18 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
         soundPickers.add(this)
     }
 
+    val monsterInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
+        value = entityData.entityInfo ?: EntityReferenceInfo.ALL
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityInfo = value }
+    }
+
+    val referenceInfo = ComboBox(ObservableEnums.ENTITY_REFERENCE_INFO).apply {
+        value = entityData.entityReferenceInfo ?: EntityReferenceInfo.NAME
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityReferenceInfo = value }
+    }
+
 
     override val root = anchorpane {
         tabpane {
@@ -493,7 +507,7 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
                 hbox {
                     paddingAll = 10.0
                     vbox {
-                        spacing = 5.0
+                        spacing = 20.0
                         alignment = Pos.TOP_CENTER
                         text("Main") {
                             font = Font.font(16.0)
@@ -509,6 +523,18 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
                                 alignment = Pos.TOP_CENTER
                                 text("Description")
                                 add(description)
+                            }
+                        }
+                        gridpane {
+                            hgap = 5.0
+                            vgap = 5.0
+                            row {
+                                text("Monster info")
+                                add(monsterInfo)
+                            }
+                            row {
+                                text("References info")
+                                add(referenceInfo)
                             }
                         }
                     }

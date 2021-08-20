@@ -325,6 +325,19 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
         imagePickers.add(this)
     }
 
+
+    val itemInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
+        value = entityData.entityInfo ?: EntityReferenceInfo.ALL
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityInfo = value }
+    }
+
+    val referenceInfo = ComboBox(ObservableEnums.ENTITY_REFERENCE_INFO).apply {
+        value = entityData.entityReferenceInfo ?: EntityReferenceInfo.NAME
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityReferenceInfo = value }
+    }
+
     override val root = anchorpane {
         tabpane {
             fitToParentSize()
@@ -455,7 +468,7 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
                 hbox {
                     paddingAll = 10.0
                     vbox {
-                        spacing = 5.0
+                        spacing = 20.0
                         alignment = Pos.TOP_CENTER
                         text("Main") {
                             font = Font.font(16.0)
@@ -468,6 +481,18 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
                                 alignment = Pos.TOP_CENTER
                                 text("Description")
                                 add(description)
+                            }
+                        }
+                        gridpane {
+                            hgap = 5.0
+                            vgap = 5.0
+                            row {
+                                text("Item info")
+                                add(itemInfo)
+                            }
+                            row {
+                                text("References info")
+                                add(referenceInfo)
                             }
                         }
                     }

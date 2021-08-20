@@ -3,10 +3,7 @@ package com.rdude.rpgeditork.view.entity
 import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.utils.*
-import com.rdude.rpgeditork.view.helper.EntityTopMenu
-import com.rdude.rpgeditork.view.helper.ImagePicker
-import com.rdude.rpgeditork.view.helper.SkillsOnBeingActionSelectorElement
-import com.rdude.rpgeditork.view.helper.SoundPicker
+import com.rdude.rpgeditork.view.helper.*
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.HPos
 import javafx.geometry.Pos
@@ -14,6 +11,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
+import ru.rdude.fxlib.containers.elementsholder.ElementsHolder
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.fxlib.containers.selector.SelectorElementAutocompletionTextField
 import ru.rdude.fxlib.textfields.AutocompletionTextField
@@ -21,10 +19,12 @@ import ru.rdude.rpg.game.logic.coefficients.Coefficients
 import ru.rdude.rpg.game.logic.data.ItemData
 import ru.rdude.rpg.game.logic.data.MonsterData
 import ru.rdude.rpg.game.logic.data.SkillData
+import ru.rdude.rpg.game.logic.data.resources.Resource
 import ru.rdude.rpg.game.logic.entities.beings.Player
 import ru.rdude.rpg.game.logic.entities.skills.SkillParser
 import ru.rdude.rpg.game.logic.enums.*
 import ru.rdude.rpg.game.logic.enums.Target
+import ru.rdude.rpg.game.visual.SkillAnimation
 import tornadofx.*
 
 class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(wrapper) {
@@ -469,7 +469,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 selectedElementsNodes.forEach {
                     entity.skillsCouldCast.put(
                         it.value.entityData.guid,
-                        it.percents.toFloat()
+                        it.percents
                     )
                 }
             }
@@ -490,7 +490,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 selectedElementsNodes.forEach {
                     entity.skillsMustCast.put(
                         it.value.entityData.guid,
-                        it.percents.toFloat()
+                        it.percents
                     )
                 }
             }
@@ -515,7 +515,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 entity.skillsOnBeingAction.clear()
                 selectedElementsNodes.forEach {
                     entity.skillsOnBeingAction.putIfAbsent(it.action, HashMap())
-                    entity.skillsOnBeingAction[it.action]!![it.skill!!.entityData.guid] = it.percents.toFloat()
+                    entity.skillsOnBeingAction[it.action]!![it.skill!!.entityData.guid] = it.percents
                 }
             }
         }
@@ -540,7 +540,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             changesChecker.add(this) { selected.sorted() }
             fieldsSaver.add { entity ->
                 entity.summon.clear()
-                selectedElementsNodes.forEach { entity.summon[it.value.entityData.guid] = it.percents.toFloat() }
+                selectedElementsNodes.forEach { entity.summon[it.value.entityData.guid] = it.percents }
             }
         }
 
@@ -692,6 +692,59 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         changesChecker.add(this) { soundResourceWrapper?.guid }
         fieldsSaver.add { it.resources.skillSound = soundResourceWrapper?.resource }
         soundPickers.add(this)
+    }
+
+    val skillInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
+        value = entityData.entityInfo ?: EntityReferenceInfo.ALL
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityInfo = value }
+    }
+
+    val referenceInfo = ComboBox(ObservableEnums.ENTITY_REFERENCE_INFO).apply {
+        value = entityData.entityReferenceInfo ?: EntityReferenceInfo.NAME
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.entityReferenceInfo = value }
+    }
+
+    val animationSubTargetsOrder = ComboBox(ObservableEnums.SKILL_ANIMATION_SUB_TARGETS_ORDER).apply {
+        value = entityData.resources.skillAnimation.subTargetsOrder ?: SkillAnimation.SubTargetsOrder.ORDERED
+        changesChecker.add(this) { value }
+        fieldsSaver.add { entityData.resources.skillAnimation.subTargetsOrder = value }
+    }
+
+    val animation = ElementsHolder { SkillAnimationSelectorElement() }.apply {
+        var entry: SkillAnimation.Entry? = entityData.resources.skillAnimation.root
+        while (entry != null) {
+            add(SkillAnimationSelectorElement(entry))
+            entry = entry.next
+        }
+        elements.onChange {
+            while (it.next()) {
+                if (it.wasAdded()) {
+                    it.addedSubList
+                        .filterNotNull()
+                        .forEach { selector -> particleHolders.add(selector) }
+                }
+                else if (it.wasRemoved()) {
+                    it.removed
+                        .filterNotNull()
+                        .forEach { selector -> particleHolders.remove(selector) }
+                }
+            }
+        }
+        changesChecker.add(this) { elements }
+        fieldsSaver.add {
+            val particleResources: MutableList<Resource> = ArrayList()
+            var currentEntry: SkillAnimation.Entry? = null
+            for (i in elements.size - 1 downTo 0) {
+                particleResources.add(elements[i].particleComboBox.value.resource)
+                val savingEntry = elements[i].generateEntry()
+                savingEntry.next = currentEntry
+                currentEntry = savingEntry
+            }
+            it.resources.skillAnimationParticles = particleResources
+            it.resources.skillAnimation.root = currentEntry
+        }
     }
 
 
@@ -991,9 +1044,10 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
             tab("Visual and sound") {
                 hbox {
+                    spacing = 15.0
                     paddingAll = 10.0
                     vbox {
-                        spacing = 5.0
+                        spacing = 20.0
                         alignment = Pos.TOP_CENTER
                         text("Main") {
                             font = Font.font(16.0)
@@ -1009,6 +1063,42 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                                 add(description)
                             }
                         }
+                        vbox {
+                            spacing = 20.0
+                            alignment = Pos.TOP_CENTER
+                            text("Animation") {
+                                font = Font.font(16.0)
+                            }
+                            hbox {
+                                spacing = 5.0
+                                alignment = Pos.CENTER_LEFT
+                                text("Sub targets order")
+                                add(animationSubTargetsOrder)
+                            }
+                            add(animation.apply {
+                                prefHeight = 200.0
+                                prefWidth = 600.0
+                            })
+                        }
+                    }
+                    vbox {
+                        spacing = 20.0
+                        alignment = Pos.TOP_CENTER
+                        text("Popup info") {
+                            font = Font.font(16.0)
+                        }
+                        gridpane {
+                            hgap = 5.0
+                            vgap = 5.0
+                            row {
+                                text("Skill info")
+                                add(skillInfo)
+                            }
+                            row {
+                                text("References info")
+                                add(referenceInfo)
+                            }
+                        }
                     }
                 }
             }
@@ -1018,7 +1108,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
 
     override fun reasonsNotToSave(): List<String> {
         val testBeing = Player()
-        val skillParser = SkillParser(entityData, testBeing, testBeing)
+        val skillParser = SkillParser()
         val messages: MutableList<String> = ArrayList()
         if (nameField.text.removeSpaces().isEmpty() && nameInEditorField.text.removeSpaces().isEmpty()) {
             messages.add("Either one of the fields NAME or NAME IN EDITOR must not be empty")
@@ -1102,6 +1192,11 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 messages.add("Skill on ${it.value!!.name.toUpperCase()} being action is empty")
             } else if (it.textField.text.removeSpaces().isEmpty()) {
                 messages.add("Chance field of cast ${sk.entityData.nameInEditor.toUpperCase()} on ${it.value!!.name.toUpperCase()} is empty")
+            }
+        }
+        animation.elements.forEach {
+            if (it.particleComboBox.value == null) {
+                messages.add("Particle animation is empty")
             }
         }
         return messages

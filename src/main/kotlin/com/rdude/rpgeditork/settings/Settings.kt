@@ -89,6 +89,12 @@ object Settings {
             field = value
         }
 
+    var tempParticlesFolder = Path.of(properties.getOrDefault("temp_particles_folder", "temp\\particles") as String)
+        set(value) {
+            storeProperty("temp_particles_folder", value.toString())
+            field = value
+        }
+
     var tempPackedImagesFolder =
         Path.of(properties.getOrDefault("temp_packed_images_folder", "temp\\packed_images\\") as String)
         set(value) {
@@ -105,6 +111,12 @@ object Settings {
     var loadSoundFolder = properties.getFileOrDefault("load_sound_folder")
         set(value) {
             storeProperty("load_sound_folder", value.toString())
+            field = value
+        }
+
+    var loadParticleFolder = properties.getFileOrDefault("load_particle_folder")
+        set(value) {
+            storeProperty("load_particle_folder", value.toString())
             field = value
         }
 

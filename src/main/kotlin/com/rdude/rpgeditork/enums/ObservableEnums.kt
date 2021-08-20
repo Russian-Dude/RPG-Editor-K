@@ -1,10 +1,12 @@
 package com.rdude.rpgeditork.enums
 
+import com.rdude.rpgeditork.view.helper.SkillAnimationSelectorElement
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import ru.rdude.rpg.game.logic.entities.beings.BeingAction
 import ru.rdude.rpg.game.logic.enums.*
 import ru.rdude.rpg.game.logic.enums.Target
+import ru.rdude.rpg.game.visual.SkillAnimation
 import tornadofx.asObservable
 import tornadofx.observable
 
@@ -40,4 +42,10 @@ object ObservableEnums {
     val BIOMS_NULLABLE: ObservableList<Biom?> = Biom.values().toMutableList<Biom?>().asObservable().apply { add(0, null) }
     val RELIEFS: ObservableList<Relief> = Relief.values().toMutableList().asObservable()
     val RELIEFS_NULLABLE: ObservableList<Relief?> = Relief.values().toMutableList<Relief?>().asObservable().apply { add(0, null) }
+    val ENTITY_REFERENCE_INFO: ObservableList<EntityReferenceInfo> = EntityReferenceInfo.values().toMutableList().asObservable()
+    val ENTITY_INFO: ObservableList<EntityReferenceInfo> = EntityReferenceInfo.values().toMutableList().asObservable().apply { removeAll(EntityReferenceInfo.NO, EntityReferenceInfo.INTEGRATED) }
+    val SKILL_ANIMATION_ENTRY_ORDER: ObservableList<SkillAnimation.EntryOrder> = SkillAnimation.EntryOrder.values().toMutableList().asObservable()
+    val SKILL_ANIMATION_SUB_TARGETS_ORDER: ObservableList<SkillAnimation.SubTargetsOrder> = SkillAnimation.SubTargetsOrder.values().toMutableList().asObservable()
+    val SKILL_ANIMATION_DIRECTION: ObservableList<SkillAnimation.Direction> = SkillAnimation.Direction.values().toMutableList().asObservable()
+    val SKILL_ANIMATION_TYPE: ObservableList<SkillAnimationSelectorElement.SkillAnimationType> = SkillAnimationSelectorElement.SkillAnimationType.values().toMutableList().asObservable()
 }
