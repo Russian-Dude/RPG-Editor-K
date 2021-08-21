@@ -39,7 +39,7 @@ class SkillSearchView : EntitySearchView<SkillData>() {
                         .reduce { a, b -> "$a\r\n       $b" }}" }
 
             .addText { "Summon: ${it.entityData.summon
-                        .mapNotNull { entry -> Data.monstersMap[entry.key]?.entityData?.nameInEditor }
+                        .mapNotNull { summon -> Data.monstersMap[summon.guid]?.entityData?.nameInEditor }
                         .ifEmpty { listOf("-") }
                         .reduce { a, b -> "$a\r\n        $b" }}" }
 

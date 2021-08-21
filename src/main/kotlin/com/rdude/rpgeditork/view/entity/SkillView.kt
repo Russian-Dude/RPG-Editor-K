@@ -11,6 +11,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
+import javafx.stage.Modality
 import ru.rdude.fxlib.containers.elementsholder.ElementsHolder
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.fxlib.containers.selector.SelectorElementAutocompletionTextField
@@ -531,16 +532,31 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.isOnBeingActionCastToEnemy
     }
 
-    val summon = SelectorContainer.withPercents(Data.monstersList)
+    val summon = SelectorContainer.withPropertiesWindow(Data.monstersList) { SummonSelectorElementProperties() }
         .nameByProperty(EntityDataWrapper<MonsterData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
+        .stageOptions { stage -> stage.title = "Summon properties" }
         .get()
         .apply {
-            entityData.summon.forEach { add(Data.monstersMap[it.key]).percents = it.value.toDouble() }
-            changesChecker.add(this) { selected.sorted() }
+            isUnique = false
+            entityData.summon.forEach {
+                val selectorElement = add(Data.monstersMap[it.guid])
+                selectorElement.propertiesNode.chance = it.chance
+                selectorElement.propertiesNode.minutes = it.minutes ?: 0
+                selectorElement.propertiesNode.turns = it.turns ?: 0
+            }
+            changesChecker.add(this) {
+                selectedElementsNodes.map { listOf(it.value, it.propertiesNode.chance, it.propertiesNode.turns, it.propertiesNode.minutes) }
+            }
             fieldsSaver.add { entity ->
                 entity.summon.clear()
-                selectedElementsNodes.forEach { entity.summon[it.value.entityData.guid] = it.percents }
+                selectedElementsNodes.forEach {
+                    val entry = SkillData.Summon()
+                    entry.guid = it.value.entityData.guid
+                    entry.chance = it.propertiesNode.chance
+                    entry.turns = if (it.propertiesNode.turns <= 0) null else it.propertiesNode.turns
+                    entry.minutes = if (it.propertiesNode.minutes <= 0) null else it.propertiesNode.minutes
+                }
             }
         }
 
@@ -724,8 +740,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                     it.addedSubList
                         .filterNotNull()
                         .forEach { selector -> particleHolders.add(selector) }
-                }
-                else if (it.wasRemoved()) {
+                } else if (it.wasRemoved()) {
                     it.removed
                         .filterNotNull()
                         .forEach { selector -> particleHolders.remove(selector) }
