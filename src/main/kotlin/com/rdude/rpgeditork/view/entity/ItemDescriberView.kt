@@ -87,6 +87,7 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
     }
 
     val description = textarea {
+        isWrapText = true
         text = entityData.description
         changesChecker.add(this) { text }
         fieldsSaver.add { it.description = text }

@@ -48,6 +48,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
 
     val description = textarea {
         text = entityData.description
+        isWrapText = true
         changesChecker.add(this) { text }
         fieldsSaver.add { it.description = text }
     }

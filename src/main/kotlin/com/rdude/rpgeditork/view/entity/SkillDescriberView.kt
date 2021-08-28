@@ -83,6 +83,7 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
     }
 
     val description = textarea {
+        isWrapText = true
         text = entityData.description
         changesChecker.add(this) { text }
         fieldsSaver.add { it.description = text }

@@ -128,6 +128,13 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
         fieldsSaver.add { it.entityReferenceInfo = value }
     }
 
+    val description = textarea {
+        isWrapText = true
+        text = entityData.description
+        changesChecker.add(this) { text }
+        fieldsSaver.add { it.description = text }
+    }
+
     override val root = anchorpane {
         tabpane {
             fitToParentSize()
@@ -177,6 +184,12 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
                                 row("References info", referenceInfo)
                             }
                         }
+                    }
+                    vbox {
+                        spacing = 25.0
+                        alignment = Pos.TOP_CENTER
+                        text("Description")
+                        add(description)
                     }
                 }
             }

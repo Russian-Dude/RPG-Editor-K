@@ -30,8 +30,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
     implementation("no.tornado:tornadofx:1.7.20")
-    implementation(files("C:\\Java\\MyProjects\\RPG-E\\RPG\\out\\artifacts\\RPG_E_jar\\RPG.jar"))
-    implementation(files("C:\\Java\\MyProjects\\FxLib\\jar\\FxExLib.jar"))
+    implementation(files("C:\\Java\\MyProjects\\RPG\\out\\artifacts\\RPG_jar\\RPG.jar"))
+    implementation(files("C:\\Java\\MyProjects\\FxExLib\\jar\\FxExLib.jar"))
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation("com.fasterxml.jackson.core:jackson-databind:2.11.2")
