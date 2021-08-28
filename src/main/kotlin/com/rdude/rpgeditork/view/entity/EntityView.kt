@@ -12,6 +12,7 @@ import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import com.rdude.rpgeditork.wrapper.ParticleResourceWrapper
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.control.TextField
 import javafx.scene.image.Image
 import ru.rdude.rpg.game.logic.data.EntityData
 import tornadofx.Fragment
@@ -38,10 +39,14 @@ abstract class EntityView<E : EntityData>(entityWrapper: EntityDataWrapper<E>) :
 
     val fieldsSaver = ViewFieldsSaver(this)
 
+    abstract val nameField: TextField
+
+    abstract val nameInEditorField: TextField
+
     val name: SimpleStringProperty = SimpleStringProperty(
         with(wrapper.entityData.nameInEditor) {
             if (this != null && this.isNotEmpty()) this
-            else "Unnamed ${wrapper.dataType.name}${if (wrapper.entityData.isDescriber) " describer" else ""}"
+            else { "Unnamed ${wrapper.dataType.name}${if (wrapper.entityData.isDescriber) " describer" else ""}" }
         }
     ).apply {
         wrapper.entityNameProperty.onChange { set(it) }

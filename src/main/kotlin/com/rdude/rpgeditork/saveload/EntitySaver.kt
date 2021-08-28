@@ -62,7 +62,13 @@ class EntitySaver : Controller() {
             mode = FileChooserMode.Save,
             initialDirectory = wrapper.dataType.saveLoadPath.toFile(),
             title = "Save ${wrapper.dataType.name}",
-            op = { this.initialFileName = wrapper.mainView?.name?.get() ?: "Unnamed ${wrapper.dataType.name}" }
+            op = {
+                val nameInEditor = wrapper.mainView?.nameInEditorField?.text ?: ""
+                val fieldsName = nameInEditor.ifBlank { wrapper.mainView?.nameField?.text ?: "" }
+                this.initialFileName = fieldsName.ifBlank {
+                        "Unnamed ${wrapper.dataType.name}${if (wrapper.entityData.isDescriber) " describer" else ""}"
+                    }
+            }
         )
         return if (files.isEmpty()) {
             false

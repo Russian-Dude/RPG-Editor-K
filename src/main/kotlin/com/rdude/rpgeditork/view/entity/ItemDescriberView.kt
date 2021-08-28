@@ -8,22 +8,19 @@ import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
-import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.ItemData
 import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
-import ru.rdude.rpg.game.logic.enums.ItemMainType
-import ru.rdude.rpg.game.logic.enums.ItemRarity
 import ru.rdude.rpg.game.logic.enums.ItemType
 import tornadofx.*
 import java.util.function.Predicate
 
 class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrapper) {
 
-    val nameField: TextField = textfield {
+    override val nameField: TextField = textfield {
         text = entityData.name ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameInEditorField.text.isNotEmpty()) {
@@ -36,7 +33,7 @@ class ItemDescriberView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemD
         fieldsSaver.add { it.name = if (text.isNotBlank()) text else promptText }
     }
 
-    val nameInEditorField: TextField = textfield {
+    override val nameInEditorField: TextField = textfield {
         text = entityData.nameInEditor ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameField.text.isNotEmpty()) {

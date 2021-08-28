@@ -36,7 +36,7 @@ import java.util.function.Predicate
 
 class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrapper) {
 
-    val nameField: TextField = textfield {
+    override val nameField: TextField = textfield {
         text = entityData.name ?: ""
         changesChecker.add(this) { text }
         fieldsSaver.add {
@@ -45,6 +45,8 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             wrapper.entityNameProperty.set(text)
         }
     }
+
+    override val nameInEditorField = TextField()
 
     val description = textarea {
         text = entityData.description

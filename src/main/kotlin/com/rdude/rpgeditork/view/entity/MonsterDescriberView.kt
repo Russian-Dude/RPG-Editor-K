@@ -1,6 +1,5 @@
 package com.rdude.rpgeditork.view.entity
 
-import com.rdude.rpgeditork.enums.NullableSize
 import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.nullableVersion
 import com.rdude.rpgeditork.utils.isPositive
@@ -13,18 +12,14 @@ import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
-import javafx.scene.text.Font
-import javafx.scene.text.TextAlignment
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.MonsterData
-import ru.rdude.rpg.game.logic.enums.AttackType
 import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
-import ru.rdude.rpg.game.logic.enums.Size
 import tornadofx.*
 
 class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterData>(wrapper) {
 
-    val nameField: TextField = textfield {
+    override val nameField: TextField = textfield {
         text = entityData.name ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameInEditorField.text.isNotEmpty()) {
@@ -37,7 +32,7 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
         fieldsSaver.add { it.name = if (text.isNotBlank()) text else promptText }
     }
 
-    val nameInEditorField: TextField = textfield {
+    override val nameInEditorField: TextField = textfield {
         text = entityData.nameInEditor ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameField.text.isNotEmpty()) {

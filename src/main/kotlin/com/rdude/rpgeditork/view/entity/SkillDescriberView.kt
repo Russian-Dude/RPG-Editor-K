@@ -12,12 +12,12 @@ import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.SkillData
-import ru.rdude.rpg.game.logic.enums.*
+import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
 import tornadofx.*
 
 class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(wrapper) {
 
-    val nameField: TextField = textfield {
+    override val nameField: TextField = textfield {
         text = entityData.name ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameInEditorField.text.isNotEmpty()) {
@@ -30,7 +30,7 @@ class SkillDescriberView (wrapper: EntityDataWrapper<SkillData>) : EntityView<Sk
         fieldsSaver.add { it.name = if (text.isNotBlank()) text else promptText }
     }
 
-    val nameInEditorField: TextField = textfield {
+    override val nameInEditorField: TextField = textfield {
         text = entityData.nameInEditor ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameField.text.isNotEmpty()) {

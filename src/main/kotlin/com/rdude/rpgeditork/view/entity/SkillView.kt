@@ -12,8 +12,6 @@ import javafx.scene.control.*
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
-import javafx.stage.Modality
-import ru.rdude.fxlib.containers.elementsholder.ElementsHolder
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.fxlib.containers.selector.SelectorElementAutocompletionTextField
 import ru.rdude.fxlib.textfields.AutocompletionTextField
@@ -21,7 +19,6 @@ import ru.rdude.rpg.game.logic.coefficients.Coefficients
 import ru.rdude.rpg.game.logic.data.ItemData
 import ru.rdude.rpg.game.logic.data.MonsterData
 import ru.rdude.rpg.game.logic.data.SkillData
-import ru.rdude.rpg.game.logic.data.resources.Resource
 import ru.rdude.rpg.game.logic.entities.beings.Player
 import ru.rdude.rpg.game.logic.entities.skills.SkillParser
 import ru.rdude.rpg.game.logic.enums.*
@@ -31,7 +28,7 @@ import tornadofx.*
 
 class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(wrapper) {
 
-    val nameField: TextField = textfield {
+    override val nameField: TextField = textfield {
         text = entityData.name ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameInEditorField.text.isNotEmpty()) {
@@ -44,7 +41,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         fieldsSaver.add { it.name = if (text.isNotBlank()) text else promptText }
     }
 
-    val nameInEditorField: TextField = textfield {
+    override val nameInEditorField: TextField = textfield {
         text = entityData.nameInEditor ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameField.text.isNotEmpty()) {

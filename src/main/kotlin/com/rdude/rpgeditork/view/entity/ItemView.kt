@@ -27,7 +27,7 @@ import java.util.function.Predicate
 
 class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrapper) {
 
-    val nameField: TextField = textfield {
+    override val nameField: TextField = textfield {
         text = entityData.name ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameInEditorField.text.isNotEmpty()) {
@@ -40,7 +40,7 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
         fieldsSaver.add { it.name = if (text.isNotBlank()) text else promptText }
     }
 
-    val nameInEditorField: TextField = textfield {
+    override val nameInEditorField: TextField = textfield {
         text = entityData.nameInEditor ?: ""
         textProperty().onChange {
             if (it != null && it.isEmpty() && nameField.text.isNotEmpty()) {
