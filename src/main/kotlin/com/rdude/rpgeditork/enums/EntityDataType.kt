@@ -18,6 +18,7 @@ import tornadofx.style
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
+import kotlin.io.path.exists
 
 data class EntityDataType<E : EntityData>(
     val clazz: Class<E>,
@@ -43,9 +44,12 @@ data class EntityDataType<E : EntityData>(
     private val createSearchViewFunction: () -> EntitySearchView<E>
 ) {
 
-    var saveLoadPath
+    var saveLoadPath: Path
         set(value) = saveLoadPathSet.invoke(value)
-        get() = saveLoadPathGet.invoke()
+        get() {
+            val path = saveLoadPathGet.invoke()
+            return if (Files.exists(path)) path else Path.of("\\")
+        }
 
     val defaultSearchDialog: SearchDialog<EntityDataWrapper<E>> = SearchDialog(dataList)
         .apply { configSearchDialog(this) }
