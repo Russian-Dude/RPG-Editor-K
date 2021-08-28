@@ -1,6 +1,7 @@
 package com.rdude.rpgeditork.enums
 
 import com.rdude.rpgeditork.view.helper.SkillAnimationSelectorElement
+import com.rdude.rpgeditork.view.helper.SkillAnimationSelectorElementProperties
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import ru.rdude.rpg.game.logic.entities.beings.BeingAction
@@ -47,5 +48,5 @@ object ObservableEnums {
     val SKILL_ANIMATION_ENTRY_ORDER: ObservableList<SkillAnimation.EntryOrder> = SkillAnimation.EntryOrder.values().toMutableList().asObservable()
     val SKILL_ANIMATION_SUB_TARGETS_ORDER: ObservableList<SkillAnimation.SubTargetsOrder> = SkillAnimation.SubTargetsOrder.values().toMutableList().asObservable()
     val SKILL_ANIMATION_DIRECTION: ObservableList<SkillAnimation.Direction> = SkillAnimation.Direction.values().toMutableList().asObservable()
-    val SKILL_ANIMATION_TYPE: ObservableList<SkillAnimationSelectorElement.SkillAnimationType> = SkillAnimationSelectorElement.SkillAnimationType.values().toMutableList().asObservable()
+    val SKILL_ANIMATION_TYPE: ObservableList<SkillAnimationSelectorElementProperties.SkillAnimationType> = SkillAnimationSelectorElementProperties.SkillAnimationType.values().toMutableList().asObservable()
 }

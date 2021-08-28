@@ -5,6 +5,7 @@ import com.rdude.rpgeditork.enums.*
 import com.rdude.rpgeditork.utils.*
 import com.rdude.rpgeditork.view.helper.*
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
+import com.rdude.rpgeditork.wrapper.ParticleResourceWrapper
 import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.scene.control.*
@@ -556,6 +557,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                     entry.chance = it.propertiesNode.chance
                     entry.turns = if (it.propertiesNode.turns <= 0) null else it.propertiesNode.turns
                     entry.minutes = if (it.propertiesNode.minutes <= 0) null else it.propertiesNode.minutes
+                    entity.summon.add(entry)
                 }
             }
         }
@@ -728,7 +730,42 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         fieldsSaver.add { entityData.resources.skillAnimation.subTargetsOrder = value }
     }
 
-    val animation = ElementsHolder { SkillAnimationSelectorElement() }.apply {
+    val animation = SelectorContainer.withPropertiesWindow(Data.particlesList, {SkillAnimationSelectorElementProperties()}, { p -> SkillAnimationSelectorElement(p) })
+        .disableSearch()
+        .stageOptions{ stage -> stage.title = "Animation entry properties" }
+        .nameByProperty(ParticleResourceWrapper::nameProperty)
+        .searchBy({ w -> w.name })
+        .get().apply {
+            this.isUnique = false
+            this.onChildrenAdded { selector -> particleHolders.add(selector) }
+            this.onChildrenRemoved { selector -> particleHolders.remove(selector) }
+            var entry = entityData.resources.skillAnimation.root
+            while (entry != null) {
+                val animationType = SkillAnimationSelectorElementProperties.SkillAnimationType.findType(entry)
+                val guid = SkillAnimationSelectorElementProperties.SkillAnimationType.findGuid(entry)
+                val selectorElement = add(Data.particles[guid])
+                selectorElement.propertiesNode.direction = entry.direction
+                selectorElement.propertiesNode.entryOrder = entry.entryOrder
+                selectorElement.propertiesNode.animationType = animationType
+                entry = entry.next
+            }
+            changesChecker.add(this) { selected }
+            fieldsSaver.add {
+                var prevEntry: SkillAnimation.Entry? = null
+                selectedElementsNodes.reversed().forEach {
+                    val entry = SkillAnimation.Entry()
+                    entry.next = prevEntry
+                    entry.direction = it.propertiesNode.direction
+                    entry.entryOrder = it.propertiesNode.entryOrder
+                    it.propertiesNode.animationType.setToField(entry, it.value.guid)
+                    prevEntry = entry
+                }
+                entityData.resources.skillAnimation.root = prevEntry
+                entityData.resources.skillAnimationParticles = particleHolders.map { it.particle?.resource }.toMutableList()
+            }
+        }
+
+/*    val animation = ElementsHolder { SkillAnimationSelectorElement() }.apply {
         var entry: SkillAnimation.Entry? = entityData.resources.skillAnimation.root
         while (entry != null) {
             add(SkillAnimationSelectorElement(entry))
@@ -760,7 +797,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             it.resources.skillAnimationParticles = particleResources
             it.resources.skillAnimation.root = currentEntry
         }
-    }
+    }*/
 
 
     override val root = anchorpane {
@@ -1078,23 +1115,6 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                                 add(description)
                             }
                         }
-                        vbox {
-                            spacing = 20.0
-                            alignment = Pos.TOP_CENTER
-                            text("Animation") {
-                                font = Font.font(16.0)
-                            }
-                            hbox {
-                                spacing = 5.0
-                                alignment = Pos.CENTER_LEFT
-                                text("Sub targets order")
-                                add(animationSubTargetsOrder)
-                            }
-                            add(animation.apply {
-                                prefHeight = 200.0
-                                prefWidth = 600.0
-                            })
-                        }
                     }
                     vbox {
                         spacing = 20.0
@@ -1114,6 +1134,19 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                                 add(referenceInfo)
                             }
                         }
+                        text("Animation") {
+                            font = Font.font(16.0)
+                        }
+                        hbox {
+                            spacing = 5.0
+                            alignment = Pos.CENTER_LEFT
+                            text("Sub targets order")
+                            add(animationSubTargetsOrder)
+                        }
+                        add(animation.apply {
+                            prefHeight = 150.0
+                            maxWidth = 250.0
+                        })
                     }
                 }
             }
@@ -1209,9 +1242,9 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 messages.add("Chance field of cast ${sk.entityData.nameInEditor.toUpperCase()} on ${it.value!!.name.toUpperCase()} is empty")
             }
         }
-        animation.elements.forEach {
-            if (it.particleComboBox.value == null) {
-                messages.add("Particle animation is empty")
+        animation.selected.forEach {
+            if (it == null) {
+                messages.add("Particle animation has empty entry")
             }
         }
         return messages
