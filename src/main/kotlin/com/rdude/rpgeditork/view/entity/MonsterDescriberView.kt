@@ -9,9 +9,12 @@ import com.rdude.rpgeditork.utils.setNullToStringConverter
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.geometry.Pos
+import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
+import javafx.scene.layout.VBox
+import javafx.scene.text.Text
 import ru.rdude.fxlib.containers.selector.SelectorContainer
 import ru.rdude.rpg.game.logic.data.MonsterData
 import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
@@ -98,17 +101,35 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
     }
 
     val spawnBioms = SelectorContainer.simple(ObservableEnums.BIOMS).get().apply {
-        addAll(entityData.spawnBioms)
         setHasSearchButton(false)
+        if (entityData.spawnBioms != null) {
+            this.addAll(entityData.spawnBioms)
+        }
         changesChecker.add(this) { selected.sorted() }
-        fieldsSaver.add { it.spawnBioms = selected.toHashSet() }
+        fieldsSaver.add { if (!anySpawnBiomes.isSelected) it.spawnBioms = selected.toHashSet() }
+    }
+
+    val anySpawnBiomes = CheckBox().apply {
+        text = "any"
+        isSelected = entityData.spawnBioms == null
+        changesChecker.add(this) { isSelected }
+        fieldsSaver.add { it.spawnBioms = null }
     }
 
     val spawnReliefs = SelectorContainer.simple(ObservableEnums.RELIEFS).get().apply {
-        addAll(entityData.spawnReliefs)
         setHasSearchButton(false)
+        if (entityData.spawnReliefs != null) {
+            addAll(entityData.spawnReliefs)
+        }
         changesChecker.add(this) { selected.sorted() }
-        fieldsSaver.add { it.spawnReliefs = selected.toHashSet() }
+        fieldsSaver.add { if (!anySpawnReliefs.isSelected) it.spawnReliefs = selected.toHashSet() }
+    }
+
+    val anySpawnReliefs = CheckBox().apply {
+        text = "any"
+        isSelected = entityData.spawnReliefs == null
+        changesChecker.add(this) { isSelected }
+        fieldsSaver.add { it.spawnReliefs = null }
     }
 
     val monsterInfo = ComboBox(ObservableEnums.ENTITY_INFO).apply {
@@ -173,8 +194,16 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
                                 row("Size", size)
                                 row("Elements", elements.apply { prefHeight = 80.0 })
                                 row("Types", beingTypes.apply { prefHeight = 80.0 })
-                                row("Spawn biomes", spawnBioms.apply { prefHeight = 80.0 })
-                                row("Spawn reliefs", spawnReliefs.apply { prefHeight = 80.0 })
+                                val spawnBiomesVbox = VBox(5.0, Text("Spawn biomes"), anySpawnBiomes)
+                                row {
+                                    add(spawnBiomesVbox.apply { alignment = Pos.CENTER })
+                                    add(spawnBioms.apply { prefHeight = 80.0 })
+                                }
+                                val spawnReliefsVbox = VBox(5.0, Text("Spawn reliefs"), anySpawnReliefs)
+                                row {
+                                    add(spawnReliefsVbox.apply { alignment = Pos.CENTER })
+                                    add(spawnReliefs.apply { prefHeight = 80.0 })
+                                }
                                 row("Monster info", monsterInfo)
                                 row("References info", referenceInfo)
                             }
