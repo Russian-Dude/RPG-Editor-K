@@ -154,24 +154,24 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
             }
         }
 
-    val skillsOnUse = SelectorContainer.simple(Data.skillsList)
+    val skillsOnUse = SelectorContainer.simple(Data.skills.list)
         .nameByProperty { w -> w.entityNameProperty }
         .searchBy({ w -> w.entityNameProperty.get() }, { w -> w.entityData.name })
         .get()
         .apply {
             SKILL.configSearchDialog(searchDialog)
-            entityData.skillsOnUse.forEach { add(Data.skillsMap[it]) }
+            entityData.skillsOnUse.forEach { add(Data.skills[it]) }
             changesChecker.add(this) { selected.sorted() }
             fieldsSaver.add { entityData.skillsOnUse = selected.map { w -> w.entityData.guid } }
         }
 
-    val skillsEquip = SelectorContainer.simple(Data.skillsList)
+    val skillsEquip = SelectorContainer.simple(Data.skills.list)
         .nameByProperty { w -> w.entityNameProperty }
         .searchBy({ w -> w.entityNameProperty.get() }, { w -> w.entityData.name })
         .get()
         .apply {
             SKILL.configSearchDialog(searchDialog)
-            entityData.skillsEquip.forEach { add(Data.skillsMap[it]) }
+            entityData.skillsEquip.forEach { add(Data.skills[it]) }
             changesChecker.add(this) { selected.sorted() }
             fieldsSaver.add { entityData.skillsEquip = selected.map { w -> w.entityData.guid } }
         }

@@ -45,13 +45,13 @@ class ItemSearchView : EntitySearchView<ItemData>() {
 
             .addText { "Skills on equip: ${
                 it.entityData.skillsEquip
-                    .map { guid -> Data.skillsMap[guid]?.entityNameProperty?.get() }
+                    .map { guid -> Data.skills[guid]?.entityNameProperty?.get() }
                     .reduce { a, b -> "$a\r\n                 $b" }
             }" }
 
             .addText { "Skills on use: ${
                 it.entityData.skillsOnUse
-                    .map { guid -> Data.skillsMap[guid]?.entityNameProperty?.get() }
+                    .map { guid -> Data.skills[guid]?.entityNameProperty?.get() }
                     .reduce { a, b -> "$a\r\n               $b" }
             }" }
             .apply()

@@ -10,6 +10,7 @@ import javafx.collections.ObservableMap
 import javafx.scene.image.Image
 import ru.rdude.rpg.game.logic.data.*
 import java.util.stream.Stream
+import kotlin.reflect.jvm.internal.impl.serialization.deserialization.ClassData
 
 object Data {
 
@@ -17,55 +18,25 @@ object Data {
     val modulesList: ObservableList<EntityDataWrapper<Module>> =
         FXCollections.observableArrayList { w -> arrayOf(w.entityNameProperty) }
 
-    val skillsMap: ObservableMap<Long, EntityDataWrapper<SkillData>> = FXCollections.observableHashMap()
-    val skillsList: ObservableList<EntityDataWrapper<SkillData>> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
+    val skills: EntityDataHolder<SkillData> = EntityDataHolder()
+    val items: EntityDataHolder<ItemData> = EntityDataHolder()
+    val monsters: EntityDataHolder<MonsterData> = EntityDataHolder()
+    val events: EntityDataHolder<EventData> = EntityDataHolder()
+    val quests: EntityDataHolder<QuestData> = EntityDataHolder()
+    val classes: EntityDataHolder<PlayerClassData> = EntityDataHolder()
+    val abilities: EntityDataHolder<AbilityData> = EntityDataHolder()
 
-    val itemsMap: ObservableMap<Long, EntityDataWrapper<ItemData>> = FXCollections.observableHashMap()
-    val itemsList: ObservableList<EntityDataWrapper<ItemData>> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
+    val allEntities
+    get() = EntityDataHolder.allEntities
 
-    val monstersMap: ObservableMap<Long, EntityDataWrapper<MonsterData>> = FXCollections.observableHashMap()
-    val monstersList: ObservableList<EntityDataWrapper<MonsterData>> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
-
-    val eventsMap: ObservableMap<Long, EntityDataWrapper<EventData>> = FXCollections.observableHashMap()
-    val eventsList: ObservableList<EntityDataWrapper<EventData>> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
-
-    val questsMap: ObservableMap<Long, EntityDataWrapper<QuestData>> = FXCollections.observableHashMap()
-    val questsList: ObservableList<EntityDataWrapper<QuestData>> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.entityNameProperty, w.insideModuleProperty) }
-
-    val allEntities: List<EntityDataWrapper<*>>
-        get() = listOf(skillsList, itemsList, monstersList, eventsList, questsList)
-            .flatten()
-
-    val images: ObservableMap<Long, ImageResourceWrapper> = FXCollections.observableHashMap()
-    val imagesList: ObservableList<ImageResourceWrapper> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.nameProperty) }
-
-    val sounds: ObservableMap<Long, SoundResourceWrapper> = FXCollections.observableHashMap()
-    val soundsList: ObservableList<SoundResourceWrapper> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.nameProperty) }
-
-    val particles: ObservableMap<Long, ParticleResourceWrapper> = FXCollections.observableHashMap()
-    val particlesList: ObservableList<ParticleResourceWrapper> = FXCollections.observableArrayList()
-    { w -> arrayOf(w.nameProperty) }
+    val images: ResourceDataHolder<ImageResourceWrapper> = ResourceDataHolder()
+    val sounds: ResourceDataHolder<SoundResourceWrapper> = ResourceDataHolder()
+    val particles: ResourceDataHolder<ParticleResourceWrapper> = ResourceDataHolder()
 
 
     init {
-        // modules to entities
-        modulesMap.addListener(MapChangeListener { change ->
-            change.valueAdded.entityData.allEntities
-                .map { EntityDataWrapper(it) }
-                .forEach { t ->
-                    t.dataMap.putIfAbsent(t.entityData.guid, t)
-                    t.insideModule = change.valueAdded
-                }
-        })
-
-        // maps to lists
+        // modules map to list
+        EntityDataHolder.allLists.add(modulesList as ObservableList<EntityDataWrapper<*>>)
         modulesMap.addListener(MapChangeListener { change ->
             modulesList.add(change.valueAdded)
             change.valueAdded.entityData.resources.imageResources
@@ -75,74 +46,14 @@ object Data {
             change.valueAdded.entityData.resources.particleResources
                 .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
         })
-        skillsMap.addListener(MapChangeListener { change ->
-            skillsList.add(change.valueAdded)
-            change.valueAdded.entityData.resources.imageResources
-                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.soundResources
-                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.particleResources
-                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
-        })
-        itemsMap.addListener(MapChangeListener { change ->
-            itemsList.add(change.valueAdded)
-            change.valueAdded.entityData.resources.imageResources
-                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.soundResources
-                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.particleResources
-                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
-        })
-        monstersMap.addListener(MapChangeListener { change ->
-            monstersList.add(change.valueAdded)
-            change.valueAdded.entityData.resources.imageResources
-                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.soundResources
-                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.particleResources
-                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
-        })
-        eventsMap.addListener(MapChangeListener { change ->
-            eventsList.add(change.valueAdded)
-            change.valueAdded.entityData.resources.imageResources
-                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.soundResources
-                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.particleResources
-                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
-        })
-        questsMap.addListener(MapChangeListener { change ->
-            questsList.add(change.valueAdded)
-            change.valueAdded.entityData.resources.imageResources
-                .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.soundResources
-                .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
-            change.valueAdded.entityData.resources.particleResources
-                .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
-        })
-        images.addListener(MapChangeListener { change ->
-            if (change.wasAdded()) {
-                imagesList.add(change.valueAdded)
-            }
-            else if (change.wasRemoved()) {
-                imagesList.remove(change.valueRemoved)
-            }
-        })
-        sounds.addListener(MapChangeListener { change ->
-            if (change.wasAdded()) {
-                soundsList.add(change.valueAdded)
-            }
-            else if (change.wasRemoved()) {
-                soundsList.remove(change.valueRemoved)
-            }
-        })
-        particles.addListener(MapChangeListener { change ->
-            if (change.wasAdded()) {
-                particlesList.add(change.valueAdded)
-            }
-            else if (change.wasRemoved()) {
-                particlesList.remove(change.valueRemoved)
-            }
+        // modules to entities
+        modulesMap.addListener(MapChangeListener { change ->
+            change.valueAdded.entityData.allEntities
+                .map { EntityDataWrapper(it) }
+                .forEach { t ->
+                    t.dataMap.putIfAbsent(t.entityData.guid, t)
+                    t.insideModule = change.valueAdded
+                }
         })
     }
 
@@ -151,10 +62,72 @@ object Data {
     }
 
     fun getEntity(guid: Long): EntityDataWrapper<*>? =
-        Stream.of(modulesMap, skillsMap, itemsMap, monstersMap, eventsMap, questsMap)
-            .flatMap { map -> map.entries.stream() }
-            .filter { entry -> entry.key == guid }
-            .map { entry -> entry.value }
+        allEntities.stream()
+            .filter { wrapper -> wrapper.entityData.guid == guid }
             .findFirst()
             .orElse(null)
+
+
+
+    class EntityDataHolder<T : EntityData> {
+
+        val list: ObservableList<EntityDataWrapper<T>> = FXCollections.observableArrayList { w -> arrayOf(w.entityNameProperty) }
+        val map: ObservableMap<Long, EntityDataWrapper<T>> = FXCollections.observableHashMap()
+
+        init {
+            allLists.add(list as ObservableList<EntityDataWrapper<*>>)
+            map.addListener(MapChangeListener { change ->
+                list.add(change.valueAdded)
+                change.valueAdded.entityData.resources.imageResources
+                    .forEach { if (it != null) images.putIfAbsent(it.guid, ImageResourceWrapper(it)) }
+                change.valueAdded.entityData.resources.soundResources
+                    .forEach { if (it != null) sounds.putIfAbsent(it.guid, SoundResourceWrapper(it)) }
+                change.valueAdded.entityData.resources.particleResources
+                    .forEach { if (it != null) particles.putIfAbsent(it.guid, ParticleResourceWrapper(it)) }
+            })
+        }
+
+        fun put(guid: Long, wrapper: EntityDataWrapper<T>) = map.put(guid, wrapper)
+        fun putIfAbsent(guid: Long, wrapper: EntityDataWrapper<T>) = map.putIfAbsent(guid, wrapper)
+        fun add(wrapper: EntityDataWrapper<T>) = map.putIfAbsent(wrapper.entityData.guid, wrapper)
+        fun remove(guid: Long) = map.remove(guid)
+        fun remove(wrapper: EntityDataWrapper<T>) = map.remove(wrapper.entityData.guid)
+        operator fun get(guid: Long) = map[guid]
+        operator fun set(guid: Long, wrapper: EntityDataWrapper<T>) { map[guid] = wrapper }
+
+        companion object AllEntities {
+
+            val allLists: MutableList<ObservableList<EntityDataWrapper<*>>> = ArrayList()
+            val allEntities: List<EntityDataWrapper<*>>
+                get() = allLists.flatten()
+
+        }
+    }
+
+
+
+    class ResourceDataHolder<T : ResourceWrapper<*>> {
+
+        val list: ObservableList<T> = FXCollections.observableArrayList{ w -> arrayOf(w.nameProperty) }
+        val map: ObservableMap<Long, T> = FXCollections.observableHashMap()
+
+        init {
+            map.addListener(MapChangeListener { change ->
+                if (change.wasAdded()) {
+                    list.add(change.valueAdded)
+                }
+                else if (change.wasRemoved()) {
+                    list.remove(change.valueRemoved)
+                }
+            })
+        }
+
+        fun put(guid: Long, wrapper: T) = map.put(guid, wrapper)
+        fun putIfAbsent(guid: Long, wrapper: T) = map.putIfAbsent(guid, wrapper)
+        fun add(wrapper: T) = map.putIfAbsent(wrapper.resource.guid, wrapper)
+        fun remove(guid: Long) = map.remove(guid)
+        fun remove(wrapper: T) = map.remove(wrapper.resource.guid)
+        operator fun get(guid: Long?) = map[guid]
+        operator fun set(guid: Long, wrapper: T) { map[guid] = wrapper }
+    }
 }

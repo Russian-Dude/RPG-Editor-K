@@ -225,7 +225,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val actsEveryMinute = TextField().apply {
-        filterInput { it.controlNewText.isInt() }
+        filterInput { it.controlNewText.isInt() && !it.controlNewText.toInt().isNegative() }
         promptText = "0"
         alignment = Pos.CENTER
         if (entityData.actsEveryMinute != 0.0) {
@@ -236,7 +236,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val actsEveryTurn = TextField().apply {
-        filterInput { it.controlNewText.isInt() }
+        filterInput { it.controlNewText.isInt() && !it.controlNewText.toInt().isNegative() }
         promptText = "0"
         alignment = Pos.CENTER
         if (entityData.actsEveryTurn != 0.0) {
@@ -322,7 +322,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val buffType = ComboBox(ObservableEnums.BUFF_TYPES).apply {
-        value = entityData.buffType ?: BuffType.PHYSIC
+        value = entityData.buffType ?: BuffType.PHYSICAL
         changesChecker.add(this) { value }
         fieldsSaver.add { it.buffType = value }
     }
@@ -415,7 +415,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
         }
 
-    val itemsRequirements = SelectorContainer.withTextField(Data.itemsList)
+    val itemsRequirements = SelectorContainer.withTextField(Data.items.list)
         .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
@@ -427,7 +427,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                     it.controlNewText.isInt() && it.controlNewText.toInt().isPositive()
                 }
             }
-            entityData.requirements.items.forEach { add(Data.itemsMap[it.key]).textField.text = it.value.toString() }
+            entityData.requirements.items.forEach { add(Data.items[it.key]).textField.text = it.value.toString() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
             }
@@ -453,13 +453,13 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.requirements.isTakeItems
     }
 
-    val skillsCanCast = SelectorContainer.withPercents(Data.skillsList)
+    val skillsCanCast = SelectorContainer.withPercents(Data.skills.list)
         .nameByProperty(EntityDataWrapper<SkillData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
         .apply {
             SKILL.configSearchDialog(searchDialog)
-            entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
+            entityData.skillsCouldCast.forEach { add(Data.skills[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
             }
@@ -474,13 +474,13 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
         }
 
-    val skillsMustCast = SelectorContainer.withPercents(Data.skillsList)
+    val skillsMustCast = SelectorContainer.withPercents(Data.skills.list)
         .nameByProperty(EntityDataWrapper<SkillData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
         .apply {
             SKILL.configSearchDialog(searchDialog)
-            entityData.skillsCouldCast.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
+            entityData.skillsCouldCast.forEach { add(Data.skills[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
             }
@@ -503,7 +503,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 val beingAction = it.key
                 it.value.forEach { entry ->
                     val selectorElement = add(beingAction)
-                    selectorElement.skill = Data.skillsMap[entry.key]!!
+                    selectorElement.skill = Data.skills[entry.key]!!
                     selectorElement.percents = entry.value.toDouble()
                 }
             }
@@ -530,7 +530,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         isSelected = !entityData.isOnBeingActionCastToEnemy
     }
 
-    val summon = SelectorContainer.withPropertiesWindow(Data.monstersList) { SummonSelectorElementProperties() }
+    val summon = SelectorContainer.withPropertiesWindow(Data.monsters.list) { SummonSelectorElementProperties() }
         .nameByProperty(EntityDataWrapper<MonsterData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .stageOptions { stage -> stage.title = "Summon properties" }
@@ -538,7 +538,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         .apply {
             isUnique = false
             entityData.summon.forEach {
-                val selectorElement = add(Data.monstersMap[it.guid])
+                val selectorElement = add(Data.monsters[it.guid])
                 selectorElement.propertiesNode.chance = it.chance
                 selectorElement.propertiesNode.minutes = it.minutes ?: 0
                 selectorElement.propertiesNode.turns = it.turns ?: 0
@@ -559,14 +559,14 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
             }
         }
 
-    val receiveItems = SelectorContainer.withTextField(Data.itemsList)
+    val receiveItems = SelectorContainer.withTextField(Data.items.list)
         .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get().apply {
             ITEM.configSearchDialog(searchDialog)
             addOption { s -> s.setSizePercentages(70.0, 30.0) }
             addOption { s -> s.textField.filterInput { t -> t.controlNewText.isInt() } }
-            entityData.receiveItems.forEach { add(Data.itemsMap[it.key]).textField.text = it.value.toString() }
+            entityData.receiveItems.forEach { add(Data.items[it.key]).textField.text = it.value.toString() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
             }
@@ -728,7 +728,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         fieldsSaver.add { entityData.resources.skillAnimation.subTargetsOrder = value }
     }
 
-    val animation = SelectorContainer.withPropertiesWindow(Data.particlesList, {SkillAnimationSelectorElementProperties()}, { p -> SkillAnimationSelectorElement(p) })
+    val animation = SelectorContainer.withPropertiesWindow(Data.particles.list, {SkillAnimationSelectorElementProperties()}, { p -> SkillAnimationSelectorElement(p) })
         .disableSearch()
         .stageOptions{ stage -> stage.title = "Animation entry properties" }
         .nameByProperty(ParticleResourceWrapper::nameProperty)
@@ -762,40 +762,6 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
                 entityData.resources.skillAnimationParticles = particleHolders.map { it.particle?.resource }.toMutableList()
             }
         }
-
-/*    val animation = ElementsHolder { SkillAnimationSelectorElement() }.apply {
-        var entry: SkillAnimation.Entry? = entityData.resources.skillAnimation.root
-        while (entry != null) {
-            add(SkillAnimationSelectorElement(entry))
-            entry = entry.next
-        }
-        elements.onChange {
-            while (it.next()) {
-                if (it.wasAdded()) {
-                    it.addedSubList
-                        .filterNotNull()
-                        .forEach { selector -> particleHolders.add(selector) }
-                } else if (it.wasRemoved()) {
-                    it.removed
-                        .filterNotNull()
-                        .forEach { selector -> particleHolders.remove(selector) }
-                }
-            }
-        }
-        changesChecker.add(this) { elements }
-        fieldsSaver.add {
-            val particleResources: MutableList<Resource> = ArrayList()
-            var currentEntry: SkillAnimation.Entry? = null
-            for (i in elements.size - 1 downTo 0) {
-                particleResources.add(elements[i].particleComboBox.value.resource)
-                val savingEntry = elements[i].generateEntry()
-                savingEntry.next = currentEntry
-                currentEntry = savingEntry
-            }
-            it.resources.skillAnimationParticles = particleResources
-            it.resources.skillAnimation.root = currentEntry
-        }
-    }*/
 
 
     override val root = anchorpane {

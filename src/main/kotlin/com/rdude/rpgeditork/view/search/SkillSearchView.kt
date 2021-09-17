@@ -39,7 +39,7 @@ class SkillSearchView : EntitySearchView<SkillData>() {
                         .reduce { a, b -> "$a\r\n       $b" }}" }
 
             .addText { "Summon: ${it.entityData.summon
-                        .mapNotNull { summon -> Data.monstersMap[summon.guid]?.entityData?.nameInEditor }
+                        .mapNotNull { summon -> Data.monsters[summon.guid]?.entityData?.nameInEditor }
                         .ifEmpty { listOf("-") }
                         .reduce { a, b -> "$a\r\n        $b" }}" }
 
@@ -53,7 +53,7 @@ class SkillSearchView : EntitySearchView<SkillData>() {
                 setOf(it.entityData.skillsCouldCast.keys, it.entityData.skillsMustCast.keys,
                 it.entityData.skillsOnBeingAction.values.flatMap { m -> m.keys })
                     .flatten()
-                    .mapNotNull { guid -> Data.skillsMap[guid]?.entityData?.nameInEditor }
+                    .mapNotNull { guid -> Data.skills[guid]?.entityData?.nameInEditor }
                     .ifEmpty { listOf("-") }
                     .reduce { a, b ->  "$a\r\n                $b"}
             }" }

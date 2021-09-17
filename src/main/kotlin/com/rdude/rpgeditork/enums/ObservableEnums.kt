@@ -1,6 +1,5 @@
 package com.rdude.rpgeditork.enums
 
-import com.rdude.rpgeditork.view.helper.SkillAnimationSelectorElement
 import com.rdude.rpgeditork.view.helper.SkillAnimationSelectorElementProperties
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -9,7 +8,6 @@ import ru.rdude.rpg.game.logic.enums.*
 import ru.rdude.rpg.game.logic.enums.Target
 import ru.rdude.rpg.game.visual.SkillAnimation
 import tornadofx.asObservable
-import tornadofx.observable
 
 object ObservableEnums {
     val ATTACK_TYPES: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList())
@@ -49,4 +47,5 @@ object ObservableEnums {
     val SKILL_ANIMATION_SUB_TARGETS_ORDER: ObservableList<SkillAnimation.SubTargetsOrder> = SkillAnimation.SubTargetsOrder.values().toMutableList().asObservable()
     val SKILL_ANIMATION_DIRECTION: ObservableList<SkillAnimation.Direction> = SkillAnimation.Direction.values().toMutableList().asObservable()
     val SKILL_ANIMATION_TYPE: ObservableList<SkillAnimationSelectorElementProperties.SkillAnimationType> = SkillAnimationSelectorElementProperties.SkillAnimationType.values().toMutableList().asObservable()
+    val STATISTIC_TYPE: ObservableList<StatisticType> = StatisticType.values().toMutableList().asObservable()
 }

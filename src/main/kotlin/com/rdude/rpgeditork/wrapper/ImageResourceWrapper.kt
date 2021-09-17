@@ -20,7 +20,7 @@ data class ImageResourceWrapper(override val resource: Resource) : ResourceWrapp
     val guid: Long
         get() = resource.guid
 
-    val nameProperty = SimpleStringProperty(resource.name).apply {
+    override val nameProperty = SimpleStringProperty(resource.name).apply {
         onChange { resource.name = it }
     }
     var name: String

@@ -24,7 +24,10 @@ data class EntityDataType<E : EntityData>(
     val clazz: Class<E>,
     val dataMap: ObservableMap<Long, EntityDataWrapper<E>>,
     val dataList: ObservableList<EntityDataWrapper<E>>,
-    val imageFiles: (EntityDataWrapper<E>) -> List<Path>,
+    val imageFiles: (EntityDataWrapper<E>) -> List<Path> = { wrapper ->
+        wrapper.entityData.resources.imageResources
+            .filterNotNull()
+            .mapNotNull { Data.images[it.guid]?.file }},
     val soundFiles: (EntityDataWrapper<E>) -> List<Path> = { wrapper ->
         wrapper.entityData.resources.soundResources
             .mapNotNull { Data.sounds[it.guid]?.file }
@@ -116,6 +119,8 @@ fun entityDataTypeOf(name: String) = when (name.toLowerCase()) {
     "monster" -> MONSTER
     "event" -> EVENT
     "quest" -> QUEST
+    "class" -> CLASS
+    "ability" -> ABILITY
     else -> null
 }
 
@@ -128,6 +133,8 @@ fun <E : EntityData> entityDataTypeOf(entityData: E) = when (entityData) {
     is MonsterData -> MONSTER as EntityDataType<E>
     is EventData -> EVENT as EntityDataType<E>
     is QuestData -> QUEST as EntityDataType<E>
+    is PlayerClassData -> CLASS as EntityDataType<E>
+    is AbilityData -> ABILITY as EntityDataType<E>
     else -> throw IllegalArgumentException("Wrapper for  ${entityData::class.java} not implemented")
 }
 
@@ -138,6 +145,8 @@ fun <E : EntityData> entityDataTypeOf(cl : Class<E>) = when (cl) {
     MonsterData::class.java -> MONSTER as EntityDataType<E>
     EventData::class.java -> EVENT as EntityDataType<E>
     QuestData::class.java -> QUEST as EntityDataType<E>
+    PlayerClassData::class.java -> CLASS as EntityDataType<E>
+    AbilityData::class.java -> ABILITY as EntityDataType<E>
     else -> throw IllegalArgumentException("Wrapper for  $cl not implemented")
 }
 
@@ -165,13 +174,8 @@ val MODULE = EntityDataType(
 
 val SKILL = EntityDataType(
     clazz = SkillData::class.java,
-    dataMap = Data.skillsMap,
-    dataList = Data.skillsList,
-    imageFiles = { wrapper ->
-        wrapper.entityData.resources.imageResources
-            .filterNotNull()
-            .mapNotNull { Data.images[it.guid]?.file }
-    },
+    dataMap = Data.skills.map,
+    dataList = Data.skills.list,
     name = "skill",
     hasPackedImages = false,
     canBeDescriber = true,
@@ -187,13 +191,8 @@ val SKILL = EntityDataType(
 
 val ITEM = EntityDataType(
     clazz = ItemData::class.java,
-    dataMap = Data.itemsMap,
-    dataList = Data.itemsList,
-    imageFiles = { wrapper ->
-        wrapper.entityData.resources.imageResources
-            .filterNotNull()
-            .mapNotNull { Data.images[it.guid]?.file }
-    },
+    dataMap = Data.items.map,
+    dataList = Data.items.list,
     name = "item",
     hasPackedImages = false,
     canBeDescriber = true,
@@ -209,13 +208,8 @@ val ITEM = EntityDataType(
 
 val MONSTER = EntityDataType(
     clazz = MonsterData::class.java,
-    dataMap = Data.monstersMap,
-    dataList = Data.monstersList,
-    imageFiles = { wrapper ->
-        wrapper.entityData.resources.imageResources
-            .filterNotNull()
-            .mapNotNull { Data.images[it.guid]?.file }
-    },
+    dataMap = Data.monsters.map,
+    dataList = Data.monsters.list,
     name = "monster",
     hasPackedImages = false,
     canBeDescriber = true,
@@ -231,13 +225,8 @@ val MONSTER = EntityDataType(
 
 val EVENT = EntityDataType(
     clazz = EventData::class.java,
-    dataMap = Data.eventsMap,
-    dataList = Data.eventsList,
-    imageFiles = { wrapper ->
-        wrapper.entityData.resources.imageResources
-            .filterNotNull()
-            .mapNotNull { Data.images[it.guid]?.file }
-    },
+    dataMap = Data.events.map,
+    dataList = Data.events.list,
     name = "event",
     hasPackedImages = false,
     canBeDescriber = false,
@@ -250,13 +239,8 @@ val EVENT = EntityDataType(
 
 val QUEST = EntityDataType(
     clazz = QuestData::class.java,
-    dataMap = Data.questsMap,
-    dataList = Data.questsList,
-    imageFiles = { wrapper ->
-        wrapper.entityData.resources.imageResources
-            .filterNotNull()
-            .mapNotNull { Data.images[it.guid]?.file }
-    },
+    dataMap = Data.quests.map,
+    dataList = Data.quests.list,
     name = "quest",
     hasPackedImages = false,
     canBeDescriber = false,
@@ -265,4 +249,32 @@ val QUEST = EntityDataType(
     saveLoadPathGet = { Settings.questsFolder },
     saveLoadPathSet = { Settings.questsFolder = it },
     createSearchViewFunction = { QuestSearchView() }
+)
+
+val CLASS = EntityDataType(
+    clazz = PlayerClassData::class.java,
+    dataMap = Data.classes.map,
+    dataList = Data.classes.list,
+    name = "class",
+    hasPackedImages = false,
+    canBeDescriber = false,
+    newViewFunc = { wrapper -> PlayerClassView(wrapper) },
+    newEntityDataFunc = { EntityDataWrapper(PlayerClassData(Functions.generateGuid())) },
+    saveLoadPathGet = { Settings.playerClassesFolder },
+    saveLoadPathSet = { Settings.playerClassesFolder = it },
+    createSearchViewFunction = { PlayerClassSearchView() }
+)
+
+val ABILITY = EntityDataType(
+    clazz = AbilityData::class.java,
+    dataMap = Data.abilities.map,
+    dataList = Data.abilities.list,
+    name = "ability",
+    hasPackedImages = false,
+    canBeDescriber = false,
+    newViewFunc = { wrapper -> AbilityView(wrapper) },
+    newEntityDataFunc = { EntityDataWrapper(AbilityData(Functions.generateGuid())) },
+    saveLoadPathGet = { Settings.abilitiesFolder },
+    saveLoadPathSet = { Settings.abilitiesFolder = it },
+    createSearchViewFunction = { AbilitySearchView() }
 )

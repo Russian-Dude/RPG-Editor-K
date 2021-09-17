@@ -188,7 +188,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
 
         private val predicate =
             Predicate<ImageResourceWrapper> { w -> moduleView.entityData.resources.imageResources.contains(w.resource) }
-        private val filteredList = FilteredList(Data.imagesList, predicate)
+        private val filteredList = FilteredList(Data.images.list, predicate)
 
         override val root = vbox {
             paddingAll = 10.0
@@ -302,7 +302,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
 
         private val predicate =
             Predicate<SoundResourceWrapper> { w -> moduleView.entityData.resources.soundResources.contains(w.resource) }
-        private val filteredList = FilteredList(Data.soundsList, predicate)
+        private val filteredList = FilteredList(Data.sounds.list, predicate)
 
         override val root = vbox {
             paddingAll = 10.0
@@ -409,7 +409,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
 
         private val predicate =
             Predicate<ParticleResourceWrapper> { w -> moduleView.entityData.resources.particleResources.contains(w.resource) }
-        private val filteredList = FilteredList(Data.particlesList, predicate)
+        private val filteredList = FilteredList(Data.particles.list, predicate)
 
         override val root = vbox {
             paddingAll = 10.0

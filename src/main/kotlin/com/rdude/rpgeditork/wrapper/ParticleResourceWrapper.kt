@@ -17,7 +17,7 @@ class ParticleResourceWrapper(override val resource: Resource) : ResourceWrapper
     val guid: Long
         get() = resource.guid
 
-    val nameProperty = SimpleStringProperty(resource.name).apply {
+    override val nameProperty = SimpleStringProperty(resource.name).apply {
         onChange { resource.name = it }
     }
     var name: String

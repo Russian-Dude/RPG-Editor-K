@@ -16,6 +16,7 @@ class SimpleDialog<T>(
     private val defaultReturn: T,
     dialogText: String = "",
     dialogImage: Image? = null,
+    contentNodes: Collection<Node>? = null,
     vararg buttons: Pair<String, () -> T>
 ) : Fragment() {
 
@@ -65,6 +66,7 @@ class SimpleDialog<T>(
     }
 
     init {
+        contentNodes?.let { nodes -> nodes.forEach { addNode(it) } }
         buttons.forEach { addButton(it.first, it.second) }
     }
 
@@ -93,6 +95,8 @@ class SimpleDialog<T>(
         button.font = Font.font(14.0)
         box.add(button)
     }
+
+    fun addNode(node: Node) = box.add(node)
 
     fun showAndWait(): T = show(true)
 

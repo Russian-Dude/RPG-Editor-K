@@ -41,7 +41,7 @@ class SoundPicker(
         }
 
     init {
-        Data.soundsList.onChange {
+        Data.sounds.list.onChange {
             while (it.next()) {
                 if (it.wasRemoved() && soundResourceWrapper != null && it.removed.contains(soundResourceWrapper)) {
                     soundResourceWrapper = null

@@ -71,6 +71,18 @@ object Settings {
             field = value
         }
 
+    var playerClassesFolder = Path.of(properties.getOrDefault("classes_folder", "entities\\classes\\") as String)
+        set(value) {
+            storeProperty("classes_folder", value.toString())
+            field = value
+        }
+
+    var abilitiesFolder = Path.of(properties.getOrDefault("abilities_folder", "entities\\abilities\\") as String)
+        set(value) {
+            storeProperty("abilities_folder", value.toString())
+            field = value
+        }
+
     var tempFolder = Path.of(properties.getOrDefault("temp_folder", "temp\\") as String)
         set(value) {
             storeProperty("temp_folder", value.toString())

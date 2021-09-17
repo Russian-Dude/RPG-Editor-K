@@ -5,6 +5,7 @@ import com.rdude.rpgeditork.saveload.EntityLoader
 import com.rdude.rpgeditork.style.LightTheme
 import com.rdude.rpgeditork.utils.dialogs.InfoDialog
 import com.rdude.rpgeditork.utils.loadDialog
+import com.rdude.rpgeditork.view.helper.FlipWithBackAnimation
 import javafx.geometry.Pos
 import javafx.scene.image.Image
 import javafx.scene.layout.Priority
@@ -28,6 +29,8 @@ class CreateNewView : Fragment() {
         add(CreationButton(MONSTER, buttonPrefWidth, buttonPrefHeight))
         add(CreationButton(EVENT, buttonPrefWidth, buttonPrefHeight))
         add(CreationButton(QUEST, buttonPrefWidth, buttonPrefHeight))
+        add(CreationButton(CLASS, buttonPrefWidth, buttonPrefHeight))
+        add(CreationButton(ABILITY, buttonPrefWidth, buttonPrefHeight))
     }
 
     class CreationButton<E : EntityData>(
@@ -46,23 +49,15 @@ class CreateNewView : Fragment() {
             add(unHovered)
             hoverProperty().addListener(ChangeListener<Boolean> { _, _, value ->
                 if (value) {
-                    unHovered.replaceWith(hovered, ViewTransition.Flip(0.2.seconds, true))
-/*                    runAsync {
-                        Thread.sleep(250)
-                    } ui {
+                    val backAnimation = {
                         if (!isHover) {
                             hovered.replaceWith(unHovered, ViewTransition.Flip(0.2.seconds, true))
                         }
-                    }*/
+                    }
+                    val transition = FlipWithBackAnimation(0.2.seconds, true, backAnimation)
+                    unHovered.replaceWith(hovered, transition)
                 } else {
                     hovered.replaceWith(unHovered, ViewTransition.Flip(0.2.seconds, true))
-/*                    runAsync {
-                        Thread.sleep(250)
-                    } ui {
-                        if (isHover) {
-                            unHovered.replaceWith(hovered, ViewTransition.Flip(0.2.seconds, true))
-                        }
-                    }*/
                 }
             })
         }

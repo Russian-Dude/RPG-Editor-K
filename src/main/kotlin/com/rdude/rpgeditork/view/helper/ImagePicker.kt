@@ -24,8 +24,8 @@ class ImagePicker(
     val imageHeightRestriction: Double? = null
 ) : Fragment() {
 
-    private val imageProperty = SimpleObjectProperty<Image>()
-    private val nameProperty = SimpleStringProperty("No image")
+    val imageProperty = SimpleObjectProperty<Image>()
+    val nameProperty = SimpleStringProperty("No image")
     var imageResourceWrapper: ImageResourceWrapper? = null
         set(value) {
             imageProperty.set(value?.fxRepresentation)
@@ -40,7 +40,7 @@ class ImagePicker(
         }
 
     init {
-        Data.imagesList.onChange {
+        Data.images.list.onChange {
             while (it.next()) {
                 if (it.wasRemoved() && imageResourceWrapper != null && it.removed.contains(imageResourceWrapper)) {
                     imageResourceWrapper = null
@@ -102,7 +102,7 @@ class ImagePicker(
                         } else {
                             imageResourceWrapper = imageRes
                             if (imageResourceWrapper != null) {
-                                Data.images[imageResourceWrapper!!.guid] = imageResourceWrapper
+                                Data.images.add(imageResourceWrapper!!)
                             }
                         }
                     }

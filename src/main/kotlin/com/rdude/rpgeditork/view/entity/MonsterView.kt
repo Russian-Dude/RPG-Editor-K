@@ -92,12 +92,12 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
         fieldsSaver.add { it.defaultAttackType = value }
     }
 
-    val itemsDrop = SelectorContainer.withPercents(Data.itemsList)
+    val itemsDrop = SelectorContainer.withPercents(Data.items.list)
         .nameByProperty(EntityDataWrapper<ItemData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get().apply {
             ITEM.configSearchDialog(searchDialog)
-            entityData.drop.forEach { add(Data.itemsMap[it.key]).percents = it.value.toDouble() }
+            entityData.drop.forEach { add(Data.items[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
             }
@@ -155,13 +155,13 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
         fieldsSaver.add { it.mainLvl = text.toDouble() }
     }
 
-    val skills = SelectorContainer.withPercents(Data.skillsList)
+    val skills = SelectorContainer.withPercents(Data.skills.list)
         .nameByProperty(EntityDataWrapper<SkillData>::entityNameProperty)
         .searchBy({ w -> w.entityData.name }, { w -> w.entityData.nameInEditor })
         .get()
         .apply {
             SKILL.configSearchDialog(searchDialog)
-            entityData.skills.forEach { add(Data.skillsMap[it.key]).percents = it.value.toDouble() }
+            entityData.skills.forEach { add(Data.skills[it.key]).percents = it.value.toDouble() }
             changesChecker.add(this) {
                 selected.sorted() to selectedElementsNodes.map { n -> n.textField.text }.sorted()
             }
@@ -171,13 +171,13 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
             }
         }
 
-    val startBuffs = SelectorContainer.simple(Data.skillsList)
+    val startBuffs = SelectorContainer.simple(Data.skills.list)
         .nameByProperty { w -> w.entityNameProperty }
         .searchBy({ w -> w.entityNameProperty.get() }, { w -> w.entityData.name })
         .get()
         .apply {
             SKILL.configSearchDialog(searchDialog)
-            entityData.startBuffs.forEach { add(Data.skillsMap[it]) }
+            entityData.startBuffs.forEach { add(Data.skills[it]) }
             changesChecker.add(this) { selected.sorted() }
             fieldsSaver.add { entityData.startBuffs = selected.map { w -> w.entityData.guid }.toSet() }
         }
