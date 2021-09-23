@@ -96,7 +96,7 @@ class ItemView(wrapper: EntityDataWrapper<ItemData>) : EntityView<ItemData>(wrap
         filterInput { it.controlNewText.isInt() && it.controlNewText.toInt().isPositive() }
         text = entityData.price.toInt().toString()
         changesChecker.add(this) { text }
-        fieldsSaver.add { it.price = text.toDouble() }
+        fieldsSaver.add { it.price = if (text.isBlank()) 0.0 else text.toDouble() }
     }
 
     val elements = SelectorContainer.simple(ObservableEnums.ELEMENTS).get().apply {

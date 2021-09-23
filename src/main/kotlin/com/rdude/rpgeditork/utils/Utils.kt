@@ -55,6 +55,17 @@ fun GridPane.row(name: String, content: Node, op: Pane.() -> Unit = {}) {
     }
 }
 
+fun GridPane.row(name: String, vararg contents: Node, op: Pane.() -> Unit = {}) {
+    row {
+        op.invoke(this)
+        text(name)
+        for (content in contents) {
+            (content as? Control)?.maxWidth = Double.MAX_VALUE
+            add(content)
+        }
+    }
+}
+
 fun GridPane.row(
     text1: String, content1: Node,
     text2: String, content2: Node,
