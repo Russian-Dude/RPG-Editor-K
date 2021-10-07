@@ -3,6 +3,7 @@ package com.rdude.rpgeditork.enums
 import com.rdude.rpgeditork.view.helper.SkillAnimationSelectorElementProperties
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import ru.rdude.rpg.game.logic.data.QuestData
 import ru.rdude.rpg.game.logic.entities.beings.BeingAction
 import ru.rdude.rpg.game.logic.enums.*
 import ru.rdude.rpg.game.logic.enums.Target
@@ -48,4 +49,6 @@ object ObservableEnums {
     val SKILL_ANIMATION_DIRECTION: ObservableList<SkillAnimation.Direction> = SkillAnimation.Direction.values().toMutableList().asObservable()
     val SKILL_ANIMATION_TYPE: ObservableList<SkillAnimationSelectorElementProperties.SkillAnimationType> = SkillAnimationSelectorElementProperties.SkillAnimationType.values().toMutableList().asObservable()
     val STATISTIC_TYPE: ObservableList<StatisticType> = StatisticType.values().toMutableList().asObservable()
+    val QUEST_END_PLACE: ObservableList<QuestData.EndQuestPlace> = QuestData.EndQuestPlace.values().toMutableList().asObservable()
+    val QUEST_REWARD_TARGET: ObservableList<QuestData.RewardTarget> = QuestData.RewardTarget.values().toMutableList().asObservable()
 }
