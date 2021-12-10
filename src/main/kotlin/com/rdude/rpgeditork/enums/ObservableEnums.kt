@@ -51,4 +51,5 @@ object ObservableEnums {
     val STATISTIC_TYPE: ObservableList<StatisticType> = StatisticType.values().toMutableList().asObservable()
     val QUEST_END_PLACE: ObservableList<QuestData.EndQuestPlace> = QuestData.EndQuestPlace.values().toMutableList().asObservable()
     val QUEST_REWARD_TARGET: ObservableList<QuestData.RewardTarget> = QuestData.RewardTarget.values().toMutableList().asObservable()
+    val QUEST_UNIQUE: ObservableList<QuestData.Unique> = QuestData.Unique.values().toMutableList().asObservable()
 }

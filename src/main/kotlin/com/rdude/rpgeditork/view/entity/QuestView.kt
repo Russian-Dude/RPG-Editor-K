@@ -66,10 +66,10 @@ class QuestView(wrapper: EntityDataWrapper<QuestData>) : EntityView<QuestData>(w
         fieldsSaver.add { it.lvl = if (text.isBlank()) 0 else text.toInt() }
     }
 
-    val unique = CheckBox("Unique").apply {
-        isSelected = entityData.isUnique
-        changesChecker.add(this) { isSelected }
-        fieldsSaver.add { it.isUnique = isSelected }
+    val unique = ComboBox(ObservableEnums.QUEST_UNIQUE).apply {
+        value = entityData.unique ?: QuestData.Unique.NO
+        changesChecker.add(this) { value }
+        fieldsSaver.add { it.unique = value }
     }
 
     val endPlace = ComboBox(ObservableEnums.QUEST_END_PLACE).apply {
@@ -321,8 +321,8 @@ class QuestView(wrapper: EntityDataWrapper<QuestData>) : EntityView<QuestData>(w
                             row("Name in editor", nameInEditorField)
                             row("Preferred level", preferredLevel)
                             row("Complete quest", endPlace)
+                            row("Unique", unique)
                         }
-                        add(unique)
                         text("Description")
                         add(description).apply {
                             minWidth = 245.0

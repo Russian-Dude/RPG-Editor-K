@@ -85,15 +85,20 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
             }
             tab("Entities") {
                 fitToParentSize()
-                hbox {
+                scrollpane {
                     fitToParentSize()
-                    spacing = 10.0
-                    alignment = Pos.CENTER_LEFT
-                    add(EntitiesList(SKILL, this@ModuleView))
-                    add(EntitiesList(ITEM, this@ModuleView))
-                    add(EntitiesList(MONSTER, this@ModuleView))
-                    add(EntitiesList(EVENT, this@ModuleView))
-                    add(EntitiesList(QUEST, this@ModuleView))
+                    hbox {
+                        fitToParentSize()
+                        spacing = 10.0
+                        alignment = Pos.CENTER_LEFT
+                        add(EntitiesList(SKILL, this@ModuleView))
+                        add(EntitiesList(ITEM, this@ModuleView))
+                        add(EntitiesList(MONSTER, this@ModuleView))
+                        add(EntitiesList(EVENT, this@ModuleView))
+                        add(EntitiesList(QUEST, this@ModuleView))
+                        add(EntitiesList(CLASS, this@ModuleView))
+                        add(EntitiesList(ABILITY, this@ModuleView))
+                    }
                 }
             }
             tab("Resources") {
