@@ -4,10 +4,7 @@ import com.rdude.rpgeditork.data.Data
 import com.rdude.rpgeditork.enums.ITEM
 import com.rdude.rpgeditork.enums.ObservableEnums
 import com.rdude.rpgeditork.enums.SKILL
-import com.rdude.rpgeditork.utils.isPositive
-import com.rdude.rpgeditork.utils.removeSpaces
-import com.rdude.rpgeditork.utils.row
-import com.rdude.rpgeditork.utils.trimZeroes
+import com.rdude.rpgeditork.utils.*
 import com.rdude.rpgeditork.view.helper.EntityTopMenu
 import com.rdude.rpgeditork.view.helper.ImagePicker
 import com.rdude.rpgeditork.view.helper.SoundPicker
@@ -27,14 +24,15 @@ import ru.rdude.rpg.game.logic.enums.EntityReferenceInfo
 import ru.rdude.rpg.game.logic.enums.Size
 import ru.rdude.rpg.game.logic.stats.Bonus
 import ru.rdude.rpg.game.logic.stats.Stat
-import ru.rdude.rpg.game.logic.stats.StatObserver
+import ru.rdude.rpg.game.logic.stats.primary.Lvl
 import tornadofx.*
 
 class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterData>(wrapper) {
 
-    val statsForCalculate = entityData.stats.copy(true).apply {
-        fieldsSaver.add { this.copyTo(entityData.stats) }
+    private val statsCopy = entityData.stats.copy(true).apply {
+        fieldsSaver.add { entityData.stats = this.copy(true) }
     }
+    private val statFields: MutableMap<Class<out Stat>, TextField> = HashMap()
 
     override val nameField: TextField = textfield {
         text = entityData.name ?: ""
@@ -147,12 +145,13 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
         }
         textProperty().onChange {
             val v = if (it!!.isBlank()) 1.0 else it.toDouble()
-            statsForCalculate.lvl().set(v)
+            entityData.stats.lvl().set(v)
         }
         alignment = Pos.CENTER
         text = entityData.mainLvl.toInt().toString()
         changesChecker.add(this) { text }
         fieldsSaver.add { it.mainLvl = text.toDouble() }
+        textProperty().addListener { _, _, _ -> updateStatFields() }
     }
 
     val skills = SelectorContainer.withPercents(Data.skills.list)
@@ -261,6 +260,17 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
         text = entityData.description
         changesChecker.add(this) { text }
         fieldsSaver.add { it.description = text }
+    }
+
+    val statsPattern = SelectorContainer.simple(ObservableEnums.PRIMARY_STATS).get().apply {
+        setHasSearchButton(false)
+        isUnique = false
+        onNodeElementValueChange { _, _ -> updateStatFields() }
+        onChildrenAdded { updateStatFields() }
+        onChildrenRemoved { updateStatFields() }
+        addAll(entityData.statsPattern)
+        changesChecker.add(this) { selected }
+        fieldsSaver.add { it.statsPattern = selected }
     }
 
     val monsterImage = ImagePicker(
@@ -453,53 +463,55 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
                                 hgap = 20.0
                                 vgap = 10.0
                                 row(
-                                    "Agility", MainStatView(statsForCalculate.agi()).root,
-                                    "Dexterity", MainStatView(statsForCalculate.dex()).root,
-                                    "Intelligence", MainStatView(statsForCalculate.intel()).root,
+                                    "Agility", StatTextField(entityData.stats.agi()),
+                                    "Dexterity", StatTextField(entityData.stats.dex()),
+                                    "Intelligence", StatTextField(entityData.stats.intel()),
                                 )
                                 row(
-                                    "Luck", MainStatView(statsForCalculate.luck()).root,
-                                    "Strength", MainStatView(statsForCalculate.str()).root,
-                                    "Vitality", MainStatView(statsForCalculate.vit()).root,
+                                    "Luck", StatTextField(entityData.stats.luck()),
+                                    "Strength", StatTextField(entityData.stats.str()),
+                                    "Vitality", StatTextField(entityData.stats.vit()),
                                 )
                                 row()
                                 row()
                                 row(
-                                    "Block", SecondaryStatView(statsForCalculate.block()).root,
-                                    "Concentration", SecondaryStatView(statsForCalculate.concentration()).root,
-                                    "Critical chance", SecondaryStatView(statsForCalculate.crit()).root,
+                                    "Block", StatTextField(entityData.stats.block()),
+                                    "Concentration", StatTextField(entityData.stats.concentration()),
+                                    "Critical chance", StatTextField(entityData.stats.crit()),
                                 )
                                 row(
-                                    "Defence", SecondaryStatView(statsForCalculate.def()).root,
-                                    "Flee", SecondaryStatView(statsForCalculate.flee()).root,
-                                    "Lucky dodge", SecondaryStatView(statsForCalculate.flee().luckyDodgeChance()).root,
+                                    "Defence", StatTextField(entityData.stats.def()),
+                                    "Flee", StatTextField(entityData.stats.flee()),
+                                    "Lucky dodge", StatTextField(entityData.stats.flee().luckyDodgeChance()),
                                 )
                                 row(
-                                    "Melee min damage", SecondaryStatView(statsForCalculate.dmg().melee().min).root,
-                                    "Range min damage", SecondaryStatView(statsForCalculate.dmg().range().min).root,
-                                    "Magic min damage", SecondaryStatView(statsForCalculate.dmg().magic().min).root,
+                                    "Melee min damage", StatTextField(entityData.stats.dmg().melee().min),
+                                    "Range min damage", StatTextField(entityData.stats.dmg().range().min),
+                                    "Magic min damage", StatTextField(entityData.stats.dmg().magic().min),
                                 )
                                 row(
-                                    "Melee max damage", SecondaryStatView(statsForCalculate.dmg().melee().max).root,
-                                    "Range max damage", SecondaryStatView(statsForCalculate.dmg().range().max).root,
-                                    "Magic max damage", SecondaryStatView(statsForCalculate.dmg().magic().max).root,
+                                    "Melee max damage", StatTextField(entityData.stats.dmg().melee().max),
+                                    "Range max damage", StatTextField(entityData.stats.dmg().range().max),
+                                    "Magic max damage", StatTextField(entityData.stats.dmg().magic().max),
                                 )
                                 row(
-                                    "Stamina", SecondaryStatView(statsForCalculate.stm().max()).root,
-                                    "Stamina recovery", SecondaryStatView(statsForCalculate.stm().recovery()).root,
-                                    "Stamina per hit", SecondaryStatView(statsForCalculate.stm().perHit()).root,
+                                    "Stamina", StatTextField(entityData.stats.stm().max()),
+                                    "Stamina recovery", StatTextField(entityData.stats.stm().recovery()),
+                                    "Stamina per hit", StatTextField(entityData.stats.stm().perHit()),
                                 )
                                 row(
-                                    "Health", SecondaryStatView(statsForCalculate.hp().max()).root,
-                                    "Health recovery", SecondaryStatView(statsForCalculate.hp().recovery()).root,
-                                    "Magic resistance", SecondaryStatView(statsForCalculate.magicResistance()).root,
+                                    "Health", StatTextField(entityData.stats.hp().max()),
+                                    "Health recovery", StatTextField(entityData.stats.hp().recovery()),
+                                    "Magic resistance", StatTextField(entityData.stats.magicResistance()),
                                 )
                                 row(
-                                    "Parry", SecondaryStatView(statsForCalculate.parry()).root,
-                                    "Physic resistance", SecondaryStatView(statsForCalculate.physicResistance()).root,
+                                    "Parry", StatTextField(entityData.stats.parry()),
+                                    "Physic resistance", StatTextField(entityData.stats.physicResistance()),
                                     "", text("")
                                 )
                             }
+                            text("Pattern")
+                            add(statsPattern.apply { prefHeight = 160.0 })
                         }
                     }
                 }
@@ -543,6 +555,7 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
             }
         }
         add(EntityTopMenu(wrapperProperty))
+        updateStatFields()
     }
 
     override fun reasonsNotToSave(): List<String> {
@@ -573,54 +586,46 @@ class MonsterView(wrapper: EntityDataWrapper<MonsterData>) : EntityView<MonsterD
         return messages
     }
 
+    private fun updateStatFields() {
+        val lvl = if (mainLvl.text.isBlank()) 0 else mainLvl.text.toInt()
+        val statPoints = (lvl * 2) + (lvl / 3) + (lvl / 10) * 2
+        val customPattern = statsPattern.selected
+        val pattern = if (customPattern.isEmpty()) ObservableEnums.PRIMARY_STATS else customPattern
 
-    inner class MainStatView(stat: Stat) : Fragment() {
+        // clear
+        statsCopy.forEachWithNestedStats { if (it !is Lvl) it.set(0.0) }
 
-        override val root = textfield {
-            prefWidth = 60.0
-            filterInput {
-                it.controlNewText.length <= 3 && it.controlNewText.isInt() && it.controlNewText.toInt().isPositive()
+        // increase
+        var index = 0;
+        for (i in 0..statPoints) {
+            statsCopy[pattern[index]].increase(1.0)
+            index = if (index < pattern.size - 1) index + 1 else 0
+        }
+
+        statFields.forEach { (statClass, field) ->
+            field.promptText = statsCopy.get(statClass).pureValue().toString().trimZeroes()
+            if (field.text.isBlank()) {
+                statsCopy.get(statClass).buffs = HashMap()
             }
-            promptText = "1"
-            textProperty().onChange {
-                val v = if (it?.isBlank() == true) 1.0 else it?.toDouble() ?: 1.0
-                stat.set(v)
+            else {
+                statsCopy.get(statClass).setBuffValue(Bonus::class.java, field.text.toDouble() - statsCopy.get(statClass).pureValue())
             }
-            text = entityData.stats.get(stat.javaClass).value().toInt().toString()
-            changesChecker.add(this) { text }
-            // fields saver is inside stats for calculate
         }
     }
 
-    inner class SecondaryStatView(stat: Stat) : Fragment(), StatObserver {
+
+    inner class StatTextField(stat: Stat) : TextField() {
 
         init {
-            stat.subscribe(this)
-        }
-
-        override val root = textfield {
             prefWidth = 60.0
             filterInput {
-                it.controlNewText.length <= 4 && it.controlNewText.isDouble() && it.controlNewText.toInt().isPositive()
+                it.controlNewText.length <= 4 && it.controlNewText.isDouble() && !it.controlNewText.toInt().isNegative()
             }
-            println("============ ${stat.name} ============")
-            println("value = ${stat.value()}")
-            println("pure value = ${stat.pureValue()}")
-            text = if (stat.pureValue() == stat.value()) "" else stat.value().toString().trimZeroes()
-            promptText = stat.value().toString().trimZeroes()
-            textProperty().onChange {
-                if (it!!.isBlank()) {
-                    stat.setBuffValue(Bonus::class.java, 0.0)
-                } else {
-                    stat.setBuffValue(Bonus::class.java, it.toDouble() - stat.pureValue())
-                }
-            }
+            textProperty().onChange { updateStatFields() }
+            statFields[stat::class.java] = this
             changesChecker.add(this) { text }
         }
 
-        override fun update(stat: Stat) {
-            root.promptText = stat.pureValue().toString().trimZeroes()
-        }
     }
 
 }

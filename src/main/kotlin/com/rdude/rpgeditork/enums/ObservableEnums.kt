@@ -9,6 +9,7 @@ import ru.rdude.rpg.game.logic.enums.*
 import ru.rdude.rpg.game.logic.enums.Target
 import ru.rdude.rpg.game.visual.SkillAnimation
 import tornadofx.asObservable
+import tornadofx.toObservable
 
 object ObservableEnums {
     val ATTACK_TYPES: ObservableList<AttackType> = FXCollections.observableArrayList(AttackType.values().asList())
@@ -52,4 +53,5 @@ object ObservableEnums {
     val QUEST_END_PLACE: ObservableList<QuestData.EndQuestPlace> = QuestData.EndQuestPlace.values().toMutableList().asObservable()
     val QUEST_REWARD_TARGET: ObservableList<QuestData.RewardTarget> = QuestData.RewardTarget.values().toMutableList().asObservable()
     val QUEST_UNIQUE: ObservableList<QuestData.Unique> = QuestData.Unique.values().toMutableList().asObservable()
+    val PRIMARY_STATS: ObservableList<StatName> = StatName.values().filter { it.isPrimary }.toMutableList().toObservable()
 }
