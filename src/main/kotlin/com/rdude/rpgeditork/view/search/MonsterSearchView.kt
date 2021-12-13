@@ -47,6 +47,7 @@ class MonsterSearchView : EntitySearchView<MonsterData>() {
                 .map { el -> el.toString() }
                 .ifEmpty { listOf("-") }
                 .reduce { a, b -> "$a, $b" }}" }
+            .apply()
     }
 
     override val root = vbox {

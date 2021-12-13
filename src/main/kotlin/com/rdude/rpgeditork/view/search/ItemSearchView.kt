@@ -35,23 +35,27 @@ class ItemSearchView : EntitySearchView<ItemData>() {
                 .streamWithNestedStats()
                 .filter { st -> st.value() != 0.0 }
                 .map { st -> "${st.name}: ${st.value()}" }
-                .reduce { a, b -> "$a\r\n       $b" }}" }
+                .reduce { a, b -> "$a\r\n       $b" }
+                .orElse("-")}" }
 
             .addText { "Stats requirements: ${it.entityData.requirements
                 .streamWithNestedStats()
                 .filter { st -> st.value() != 0.0 }
                 .map { st -> "${st.name}: ${st.value()}" }
-                .reduce { a, b -> "$a\r\n                    $b" }}" }
+                .reduce { a, b -> "$a\r\n                    $b" }
+                .orElse("-")}" }
 
             .addText { "Skills on equip: ${
                 it.entityData.skillsEquip
                     .map { guid -> Data.skills[guid]?.entityNameProperty?.get() }
+                    .ifEmpty { listOf("-") }
                     .reduce { a, b -> "$a\r\n                 $b" }
             }" }
 
             .addText { "Skills on use: ${
                 it.entityData.skillsOnUse
                     .map { guid -> Data.skills[guid]?.entityNameProperty?.get() }
+                    .ifEmpty { listOf("-") }
                     .reduce { a, b -> "$a\r\n               $b" }
             }" }
             .apply()

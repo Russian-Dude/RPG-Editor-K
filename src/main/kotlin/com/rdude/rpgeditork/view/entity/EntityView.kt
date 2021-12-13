@@ -60,12 +60,12 @@ abstract class EntityView<E : EntityData>(entityWrapper: EntityDataWrapper<E>) :
 
     val particleHolders: MutableList<ParticleHolder> = ArrayList()
 
-    val canNotSaveDialog = InfoDialog("Can not save ${name.get()} because of:", image = Image("icons\\warning.png"))
+    val canNotSaveDialog = InfoDialog("Can not save ${name.get()} because of:", image = resources.image("/icons/warning.png"))
 
     val saveOnCloseDialog = SimpleDialog(
         defaultReturn = false,
         dialogText = "Save changes to ${name.get()}?",
-        dialogImage = Image("icons\\question.png"),
+        dialogImage = resources.image("/icons/question.png"),
         vertical = false,
         buttons = arrayOf(
             "Yes" to { find<EntitySaver>().save(wrapper) },
