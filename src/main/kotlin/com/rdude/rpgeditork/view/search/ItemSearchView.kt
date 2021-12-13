@@ -62,6 +62,7 @@ class ItemSearchView : EntitySearchView<ItemData>() {
     }
 
     override val root = vbox {
+        paddingLeft = 15.0
         spacing = 15.0
         alignment = Pos.TOP_CENTER
         add(resetSearchButton)
