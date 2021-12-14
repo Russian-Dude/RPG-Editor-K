@@ -236,6 +236,19 @@ class LightTheme : Stylesheet() {
             borderColor += box(c("#353B48"))
         }
 
+        menuButton {
+            borderWidth += box(0.0.px)
+            borderColor += box(transparent)
+            backgroundColor += transparent
+            and(button, scrollPane, tab, textField, textArea) {
+                borderWidth += box(0.0.px)
+                borderColor += box(transparent)
+            }
+            and(hover) {
+                backgroundColor += superWhite
+            }
+        }
+
 
     }
 

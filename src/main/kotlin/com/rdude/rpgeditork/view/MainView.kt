@@ -1,5 +1,6 @@
 package com.rdude.rpgeditork.view
 
+import com.badlogic.gdx.tools.particleeditor.ParticleEditor
 import com.rdude.rpgeditork.enums.createNewView
 import com.rdude.rpgeditork.style.LightTheme
 import com.rdude.rpgeditork.utils.clearTempFolders
@@ -16,6 +17,8 @@ import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import tornadofx.*
+import java.io.File
+import kotlin.concurrent.thread
 
 class MainView : View() {
 
@@ -49,6 +52,14 @@ class MainView : View() {
                     rightAnchor = 10
                 }
                 alignment = Pos.CENTER
+                menubutton {
+                    this.graphic = null
+                    item("Open libGDX particle editor") {
+                        action {
+                            Runtime.getRuntime().exec("system\\jar\\Particle.exe", null, File("system\\jar\\"))
+                        }
+                    }
+                }
                 button {
                     addClass(LightTheme.withoutBorders)
                     text = " 🔧 "
