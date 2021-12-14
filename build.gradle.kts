@@ -6,6 +6,7 @@ plugins {
     id("application")
     id("org.openjfx.javafxplugin") version "0.0.9"
     id ("com.github.johnrengelman.shadow") version "7.1.0"
+    id ("org.beryx.runtime") version "1.12.7"
 }
 
 
@@ -51,6 +52,8 @@ dependencies {
     implementation("org.openjfx:javafx-graphics:11.0.2")
     implementation("org.openjfx:javafx-fxml:11.0.2")
     implementation("org.openjfx:javafx-web:11.0.2")
+
+    implementation("org.ow2.asm:asm-util:9.1")
 }
 
 
