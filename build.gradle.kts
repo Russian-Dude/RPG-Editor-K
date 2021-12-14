@@ -54,6 +54,8 @@ dependencies {
     implementation("org.openjfx:javafx-web:11.0.2")
 
     implementation("org.ow2.asm:asm-util:9.1")
+
+    implementation("org.openjdk.nashorn:nashorn-core:15.3")
 }
 
 

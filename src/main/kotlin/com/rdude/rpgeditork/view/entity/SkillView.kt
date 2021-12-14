@@ -75,11 +75,9 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         alignment = Pos.CENTER
         promptText = "0"
         filterInput { it.controlNewText.isInt() }
-        if (entityData.staminaReq != 0) {
-            text = entityData.staminaReq.toString()
-        }
+        text = entityData.staminaReq ?: ""
         changesChecker.add(this) { text }
-        fieldsSaver.add { it.staminaReq = if (text.isNotBlank()) text.toInt() else 0 }
+        fieldsSaver.add { it.staminaReq = text }
     }
 
     val requiredConcentration = textfield {
@@ -1127,6 +1125,9 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         }
         if (damage.text.removeSpaces().isNotEmpty() && !skillParser.testParse(damage.text.toUpperCase())) {
             messages.add("Formula in DAMAGE field is incorrect")
+        }
+        if (requiredStamina.text.removeSpaces().isNotEmpty() && !skillParser.testParse(requiredStamina.text.toUpperCase())) {
+            messages.add("Formula in REQUIRED STAMINA field is incorrect")
         }
         if (forcedCancelAfter.text.removeSpaces()
                 .isNotEmpty() && !skillParser.testParse(forcedCancelAfter.text.toUpperCase())
