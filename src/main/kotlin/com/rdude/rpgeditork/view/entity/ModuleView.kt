@@ -6,6 +6,7 @@ import com.rdude.rpgeditork.saveload.EntityLoader
 import com.rdude.rpgeditork.saveload.EntitySaver
 import com.rdude.rpgeditork.saveload.ParticleFileLoader
 import com.rdude.rpgeditork.settings.Settings
+import com.rdude.rpgeditork.utils.ParticleImageChanger
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
 import com.rdude.rpgeditork.utils.dialogs.InfoDialog
 import com.rdude.rpgeditork.utils.loadDialog
@@ -235,28 +236,45 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                 addContextMenu("Replace") { replace ->
                     replace.menuItem("With image from file") {
                         val wrapper = loadImageFromFile() ?: return@menuItem
-                        moduleView.entityData.resources.remove(it.resource)
-                        Data.allEntities.forEach { w ->
-                            w.mainView?.imagePickers?.forEach { picker -> picker.imageResourceWrapper = wrapper }
-                            w.entityData.resources.swapImage(it.resource, wrapper.resource)
+                        loadDialog(text = "Replacing...") {
+                            moduleView.entityData.resources.remove(it.resource)
+                            Data.allEntities.forEach { w ->
+                                w.mainView?.imagePickers?.forEach { picker -> picker.imageResourceWrapper = wrapper }
+                                val swaped = w.entityData.resources.swapImage(it.resource, wrapper.resource)
+                                if (swaped) {
+                                    moduleView.wrapper.imagesWereChanged = true
+                                    find<EntitySaver>().save(w)
+                                }
+                            }
+                            Data.particles.list.forEach { particle ->
+                                ParticleImageChanger.change(particle, it.guid, wrapper.guid)
+                                moduleView.wrapper.imagesWereChanged = true
+                            }
+                            Data.images.remove(it.guid)
                         }
-                        Data.images.remove(it.guid)
                     }
                     replace.menuItem("With image from data") {
                         val wrapper = Dialogs.imageSearchDialog().orElse(null) ?: return@menuItem
                         if (wrapper == it) return@menuItem
-                        moduleView.entityData.resources.remove(it.resource)
-                        Data.allEntities.forEach { w ->
-                            w.mainView?.imagePickers?.forEach { picker -> picker.imageResourceWrapper = wrapper }
-                            w.entityData.resources.swapImage(it.resource, wrapper.resource)
+                        loadDialog(text = "Replacing...") {
+                            moduleView.entityData.resources.remove(it.resource)
+                            Data.allEntities.forEach { w ->
+                                w.mainView?.imagePickers?.forEach { picker -> picker.imageResourceWrapper = wrapper }
+                                val swaped = w.entityData.resources.swapImage(it.resource, wrapper.resource)
+                                if (swaped) find<EntitySaver>().save(w)
+                            }
+                            Data.particles.list.forEach { particle ->
+                                ParticleImageChanger.change(particle, it.guid, wrapper.guid)
+                                moduleView.wrapper.imagesWereChanged = true
+                            }
+                            Data.images.remove(it.guid)
                         }
-                        Data.images.remove(it.guid)
                     }
                 }
 
                 addContextMenuItem("Remove") {
                     val used = Data.allEntities
-                        .filter { w -> w.entityData.resources.imageResources.contains(it.resource) }
+                        .filter { w -> w != moduleView.wrapper && w.entityData.resources.imageResources.contains(it.resource) }
                     if (used.isNotEmpty()) {
                         val usedAsString = used
                             .take(3)
@@ -344,28 +362,34 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                 addContextMenu("Replace") { replace ->
                     replace.menuItem("With sound from file") {
                         val wrapper = loadSoundsFromFile() ?: return@menuItem
-                        moduleView.entityData.resources.remove(it.resource)
-                        Data.allEntities.forEach { w ->
-                            w.mainView?.soundPickers?.forEach { picker -> picker.soundResourceWrapper = wrapper }
-                            w.entityData.resources.swapSound(it.resource, wrapper.resource)
+                        loadDialog("Replacing...") {
+                            moduleView.entityData.resources.remove(it.resource)
+                            Data.allEntities.forEach { w ->
+                                w.mainView?.soundPickers?.forEach { picker -> picker.soundResourceWrapper = wrapper }
+                                val swaped = w.entityData.resources.swapSound(it.resource, wrapper.resource)
+                                if (swaped) find<EntitySaver>().save(w)
+                            }
+                            Data.sounds.remove(it.guid)
                         }
-                        Data.sounds.remove(it.guid)
                     }
                     replace.menuItem("With sound from data") {
                         val wrapper = Dialogs.soundsSearchDialog.showAndWait().orElse(null) ?: return@menuItem
                         if (wrapper == it) return@menuItem
-                        moduleView.entityData.resources.remove(it.resource)
-                        Data.allEntities.forEach { w ->
-                            w.mainView?.soundPickers?.forEach { picker -> picker.soundResourceWrapper = wrapper }
-                            w.entityData.resources.swapSound(it.resource, wrapper.resource)
+                        loadDialog("Replacing...") {
+                            moduleView.entityData.resources.remove(it.resource)
+                            Data.allEntities.forEach { w ->
+                                w.mainView?.soundPickers?.forEach { picker -> picker.soundResourceWrapper = wrapper }
+                                val swaped = w.entityData.resources.swapSound(it.resource, wrapper.resource)
+                                if (swaped) find<EntitySaver>().save(w)
+                            }
+                            Data.sounds.remove(it.guid)
                         }
-                        Data.sounds.remove(it.guid)
                     }
                 }
 
                 addContextMenuItem("Remove") {
                     val used = Data.allEntities
-                        .filter { w -> w.entityData.resources.soundResources.contains(it.resource) }
+                        .filter { w -> w != moduleView.wrapper && w.entityData.resources.soundResources.contains(it.resource) }
                     if (used.isNotEmpty()) {
                         val usedAsString = used
                             .take(3)
@@ -450,28 +474,34 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                 addContextMenu("Replace") { replace ->
                     replace.menuItem("With particle from file") {
                         val wrapper = loadParticlesFromFile() ?: return@menuItem
-                        moduleView.entityData.resources.remove(it.resource)
-                        Data.allEntities.forEach { w ->
-                            w.mainView?.particleHolders?.forEach { holder -> holder.particle = wrapper }
-                            w.entityData.resources.swapParticle(it.resource, wrapper.resource)
+                        loadDialog("Replacing...") {
+                            moduleView.entityData.resources.remove(it.resource)
+                            Data.allEntities.forEach { w ->
+                                w.mainView?.particleHolders?.forEach { holder -> holder.particle = wrapper }
+                                val swaped = w.entityData.resources.swapParticle(it.resource, wrapper.resource)
+                                if (swaped) find<EntitySaver>().save(w)
+                            }
+                            Data.particles.remove(it.guid)
                         }
-                        Data.particles.remove(it.guid)
                     }
                     replace.menuItem("With particle from data") {
                         val wrapper = Dialogs.particlesSearchDialog.showAndWait().orElse(null) ?: return@menuItem
                         if (wrapper == it) return@menuItem
-                        moduleView.entityData.resources.remove(it.resource)
-                        Data.allEntities.forEach { w ->
-                            w.mainView?.particleHolders?.forEach { holder -> holder.particle = wrapper }
-                            w.entityData.resources.swapParticle(it.resource, wrapper.resource)
+                        loadDialog("Replacing...") {
+                            moduleView.entityData.resources.remove(it.resource)
+                            Data.allEntities.forEach { w ->
+                                w.mainView?.particleHolders?.forEach { holder -> holder.particle = wrapper }
+                                val swaped = w.entityData.resources.swapParticle(it.resource, wrapper.resource)
+                                if (swaped) find<EntitySaver>().save(w)
+                            }
+                            Data.particles.remove(it.guid)
                         }
-                        Data.particles.remove(it.guid)
                     }
                 }
 
                 addContextMenuItem("Remove") {
                     val used = Data.allEntities
-                        .filter { w -> w.entityData.resources.particleResources.contains(it.resource) }
+                        .filter { w -> w != moduleView.wrapper && w.entityData.resources.particleResources.contains(it.resource) }
                     if (used.isNotEmpty()) {
                         val usedAsString = used
                             .take(3)
@@ -484,11 +514,10 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                         }
                     }
                     moduleView.wrapper.entityData.resources.remove(it.resource)
-                    used.forEach { wrapper -> wrapper.entityData.resources.remove(it.resource) }
+                    used.forEach { wrapper -> wrapper.entityData.resources.particleResources.remove(it.resource) }
                     moduleView.wrapper.imagesWereChanged = true
                     Data.particles.remove(it.resource.guid)
                 }
-
                 moduleView.changesChecker.add(this) {
                     listView.items.sorted() to listView.items.map { it.name }.sorted()
                 }
