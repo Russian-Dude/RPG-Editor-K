@@ -70,7 +70,7 @@ class MonsterDescriberView(wrapper: EntityDataWrapper<MonsterData>) : EntityView
         setNullToStringConverter("Any")
         value = entityData.size?.nullableVersion()
         changesChecker.add(this) { value }
-        fieldsSaver.add { it.size = value.size }
+        fieldsSaver.add { it.size = value?.size }
     }
 
     val attackType = combobox(values = ObservableEnums.ATTACK_WITHOUT_WEAPON_TYPE_NULLABLE) {

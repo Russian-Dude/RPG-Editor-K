@@ -18,7 +18,7 @@ import java.util.function.Predicate
 object Dialogs {
 
     private val wrongSizeDialog = InfoDialog(
-        image = Image("icons\\warning.png")
+        image = Image(this::class.java.getResourceAsStream("/icons/warning.png"))
     )
 
     fun wrongSizeDialog(width: Double, height: Double): InfoDialog {
@@ -34,7 +34,7 @@ object Dialogs {
 
     private val confirmationDialog = SimpleDialog(
         defaultReturn = false,
-        dialogImage = Image("icons\\question.png"),
+        dialogImage = Image(this::class.java.getResourceAsStream("/icons/question.png")),
         buttons = arrayOf(
             "Yes" to { true },
             "No" to { false }))

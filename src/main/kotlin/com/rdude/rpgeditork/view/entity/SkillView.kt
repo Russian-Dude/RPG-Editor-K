@@ -70,14 +70,13 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
         fieldsSaver.add { it.type = value }
     }
 
-    val requiredStamina = textfield {
+    val requiredStamina = AutocompletionTextField(ObservableEnums.FORMULA_VARIABLES, AutocompletionTextField.Type.WORDS).apply {
         maxWidth = 50.0
         alignment = Pos.CENTER
         promptText = "0"
-        filterInput { it.controlNewText.isInt() }
         text = entityData.staminaReq ?: ""
         changesChecker.add(this) { text }
-        fieldsSaver.add { it.staminaReq = text }
+        fieldsSaver.add { it.staminaReq = if (text.isNotBlank()) text else "0" }
     }
 
     val requiredConcentration = textfield {
