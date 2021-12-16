@@ -184,6 +184,7 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     moduleView.entityData.removeEntity(it.entityData)
                     it.insideModule = null
                     it.wasChanged = true
+                    insideList.update()
                 }
                 moduleView.changesChecker.add(this) { this.listView.items.sorted() }
             })
@@ -518,6 +519,11 @@ class ModuleView(wrapper: EntityDataWrapper<Module>) : EntityView<Module>(wrappe
                     moduleView.wrapper.imagesWereChanged = true
                     Data.particles.remove(it.resource.guid)
                 }
+
+                addContextMenuItem("Export") {
+
+                }
+
                 moduleView.changesChecker.add(this) {
                     listView.items.sorted() to listView.items.map { it.name }.sorted()
                 }

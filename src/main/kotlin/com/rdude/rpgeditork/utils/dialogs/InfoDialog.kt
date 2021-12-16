@@ -8,7 +8,7 @@ import javafx.scene.text.Font
 import javafx.stage.StageStyle
 import tornadofx.*
 
-class InfoDialog(headerText: String = "", infoText: String = "", image: Image? = null) : Fragment() {
+open class InfoDialog(headerText: String = "", infoText: String = "", image: Image? = null) : Fragment() {
 
     private val headerTextProperty = SimpleStringProperty(headerText)
     var headerText: String

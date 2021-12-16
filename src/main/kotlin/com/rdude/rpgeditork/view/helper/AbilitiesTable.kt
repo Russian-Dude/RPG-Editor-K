@@ -6,6 +6,7 @@ import com.rdude.rpgeditork.utils.aStar.AbilityPathGenerator
 import com.rdude.rpgeditork.utils.abilityPathBetweenCells
 import com.rdude.rpgeditork.utils.containsAny
 import com.rdude.rpgeditork.utils.dialogs.Dialogs
+import com.rdude.rpgeditork.utils.dialogs.InfoDialog
 import com.rdude.rpgeditork.utils.plus
 import com.rdude.rpgeditork.wrapper.EntityDataWrapper
 import javafx.beans.value.ChangeListener
@@ -22,7 +23,6 @@ import ru.rdude.rpg.game.logic.playerClass.AbilityPath
 import ru.rdude.rpg.game.utils.aStar.AStarNode
 import tornadofx.action
 import tornadofx.item
-import java.util.*
 
 class AbilitiesTable(private val classData: PlayerClassData) : GridPane() {
 
@@ -61,16 +61,25 @@ class AbilitiesTable(private val classData: PlayerClassData) : GridPane() {
 
     private fun removeConnections(cell: CellAStarNode) {
         if (cell.isAbility) {
-            cells.flatten()
-                .filter { it.connectedWith.from.contains(cell.cell.contentWrapper) }
-                .forEach {
-                    if (it.isAbility) {
-                        it.cell.requirements.remove(cell.cell)
+            cells.flatten().forEach {
+                    // from
+                    if (it.connectedWith.from.contains(cell.cell.contentWrapper)) {
+                        if (it.isAbility) {
+                            it.cell.requirements.remove(cell.cell)
+                        }
+                        it.connectedWith.from.remove(cell.cell.contentWrapper)
+                        if (it.isPath && it.connectedWith.from.isEmpty()) {
+                            it.connectedWith.to.clear()
+                            it.cell.clear()
+                        }
                     }
-                    it.connectedWith.from.remove(cell.cell.contentWrapper)
-                    if (it.isPath && it.connectedWith.from.isEmpty()) {
-                        it.connectedWith.to.clear()
-                        it.cell.clear()
+                    // to
+                    if (it.connectedWith.to.contains(cell.cell.contentWrapper)) {
+                        it.connectedWith.to.remove(cell.cell.contentWrapper)
+                        if (it.isPath && it.connectedWith.to.isEmpty()) {
+                            it.connectedWith.from.clear()
+                            it.cell.clear()
+                        }
                     }
                 }
         }
@@ -161,7 +170,12 @@ class AbilitiesTable(private val classData: PlayerClassData) : GridPane() {
                 // if cell is empty - open dialog to add ability to this cell
                 if (cellNode.isEmpty && !isAbilityCellAround(cellNode)) {
                     ABILITY.defaultSearchDialog.showAndWait().ifPresent { selected ->
-                        cellNode.cell.setContent(selected)
+                        if (cells.flatten().any { it.cell.contentWrapper == selected }) {
+                            AbilityAlreadyPresentsDialog.show(selected)
+                        }
+                        else {
+                            cellNode.cell.setContent(selected)
+                        }
                     }
                 }
                 // if cell contains ability
@@ -325,6 +339,17 @@ class AbilitiesTable(private val classData: PlayerClassData) : GridPane() {
                 AbilityPath.NSE -> NSE
                 AbilityPath.NSW -> NSW
             }
+        }
+
+    }
+
+    private companion object AbilityAlreadyPresentsDialog : InfoDialog(
+        headerText = "Ability Name already presents in the table",
+        image = Image(AbilityAlreadyPresentsDialog::class.java.getResourceAsStream("/icons/warning.png"))) {
+
+        fun show(wrapper: EntityDataWrapper<AbilityData>) {
+            headerText = "${wrapper.entityData.nameInEditor} already presents in the table"
+            show()
         }
 
     }

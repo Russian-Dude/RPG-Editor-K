@@ -83,6 +83,12 @@ object Settings {
             field = value
         }
 
+    var exportParticlesFolder = Path.of(properties.get("export_particles_folder") as String)
+        set(value) {
+            storeProperty("export_particles_folder", value.toString())
+            field = value
+    }
+
     var tempFolder = Path.of(properties.getOrDefault("temp_folder", "temp\\") as String)
         set(value) {
             storeProperty("temp_folder", value.toString())
