@@ -138,6 +138,12 @@ object Settings {
             field = value
         }
 
+    var logsDirectory = properties.getFileOrDefault("logs_directory", Path.of("logs"))
+        set(value) {
+            storeProperty("logs_directory", value.toString())
+            field = value
+        }
+
     val styleThemeProperty = SimpleObjectProperty(
         StyleTheme.valueOf(properties.getOrDefault("theme", StyleTheme.values().first().name) as String)
     )
