@@ -100,7 +100,7 @@ class SkillView(wrapper: EntityDataWrapper<SkillData>) : EntityView<SkillData>(w
     }
 
     val mainTarget = ComboBox(ObservableEnums.MAIN_TARGETS).apply {
-        value = entityData.mainTarget ?: Target.NO
+        value = entityData.mainTarget ?: Target.SELF
         changesChecker.add(this) { value }
         fieldsSaver.add { it.mainTarget = value }
     }
