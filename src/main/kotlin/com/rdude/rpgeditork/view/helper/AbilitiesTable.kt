@@ -268,7 +268,7 @@ class AbilitiesTable(private val classData: PlayerClassData) : GridPane() {
             if (guid < 0) {
                 imageView.image = null
                 content = null
-            } else if (guid < 10) {
+            } else if (guid <= 10) {
                 setContent(AbilityPath.values()[guid.toInt()])
             } else {
                 val ability = Data.abilities[guid]?.entityData
