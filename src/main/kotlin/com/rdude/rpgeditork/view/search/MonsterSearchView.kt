@@ -23,14 +23,16 @@ class MonsterSearchView : EntitySearchView<MonsterData>() {
             .addText { "In game name: ${it.entityData.name}" }
 
             .addText { "Spawn biomes: " +
-                    if (it.entityData.spawnBioms.containsAll(Biom.values().asList())) "all"
+                    if (it.entityData.spawnBioms == null) "any"
+                    else if (it.entityData.spawnBioms.containsAll(Biom.values().asList())) "all"
                     else it.entityData.spawnBioms
                         .map { biome -> biome.toString() }
                         .reduce{ a, b -> "$a, $b" }
             }
 
             .addText { "Spawn reliefs: " +
-                    if (it.entityData.spawnReliefs.containsAll(Relief.values().asList())) "all"
+                    if (it.entityData.spawnReliefs == null) "any"
+                    else if (it.entityData.spawnReliefs.containsAll(Relief.values().asList())) "all"
                     else it.entityData.spawnReliefs
                         .map { relief -> relief.toString() }
                         .reduce{ a, b -> "$a, $b" }
